@@ -1,0 +1,426 @@
+OBJETIVO
+
+Construir el frontend completo de un POS profesional para apuestas de carreras de galgos llamado MBRACES POS.
+
+IMPORTANTE:
+
+NO rediseñar.
+NO modernizar.
+NO convertir en dashboard SaaS.
+NO usar tarjetas estilo CRM.
+NO usar diseño tipo administración.
+NO usar layouts responsive móviles.
+
+Debe parecer una terminal real de apuestas utilizada por operadores en una banca física.
+
+Tomar como referencia visual el POS clásico de carreras de galgos.
+
+=================================================================
+
+TECNOLOGÍA
+
+* React
+* TypeScript
+* TailwindCSS
+* Zustand
+* Axios
+* TanStack Query
+
+Frontend únicamente.
+
+=================================================================
+
+RESOLUCIÓN
+
+Diseñar para:
+
+1920x1080
+
+Pantalla completa.
+
+Sin scroll vertical.
+
+Todo visible en una sola pantalla.
+
+=================================================================
+
+ESTILO VISUAL
+
+Tema oscuro.
+
+Fondo con fotografía de galgos corriendo.
+
+Overlay oscuro encima de la fotografía.
+
+Colores predominantes:
+
+* Negro
+* Verde oscuro
+* Amarillo
+* Rojo
+* Blanco
+
+Aspecto de software profesional de apuestas.
+
+=================================================================
+
+HEADER SUPERIOR
+
+Logo:
+
+MBRACES
+
+Menú superior:
+
+* JUGADA
+* RESULTADOS
+* CUOTAS
+* VENTAS
+* CAJA
+
+Información visible:
+
+* Carrera actual
+* Hora inicio
+* Hora activa
+* Tiempo restante
+* Barra de progreso
+* Estado OPEN/RUNNING/CLOSED
+* Usuario
+* Agencia
+
+=================================================================
+
+SELECCIÓN DE PERROS
+
+Mostrar EXACTAMENTE 3 filas.
+
+Fila 1:
+
+1°
+
+Fila 2:
+
+2°
+
+Fila 3:
+
+3°
+
+NO usar nombres de perros.
+
+NO mostrar estadísticas.
+
+NO mostrar fotografías individuales.
+
+=================================================================
+
+SOLO EXISTEN 6 PERROS
+
+Perro 1:
+
+Rojo
+
+#ff0000
+
+Número blanco
+
+---
+
+Perro 2:
+
+Azul
+
+#005eff
+
+Número blanco
+
+---
+
+Perro 3:
+
+Blanco
+
+Número negro
+
+---
+
+Perro 4:
+
+Negro
+
+Número blanco
+
+---
+
+Perro 5:
+
+Naranja/Mamey
+
+Número blanco
+
+---
+
+Perro 6:
+
+Rayas horizontales blancas y negras
+
+Número rojo
+
+---
+
+Cada perro debe ser un botón grande.
+
+=================================================================
+
+LÓGICA DE APUESTAS
+
+QUINIELA
+
+Si se selecciona:
+
+1 solo perro
+
+Ejemplo:
+
+4
+
+y luego monto
+
+Se genera:
+
+QUINIELA 4
+
+---
+
+PALE
+
+Si se selecciona:
+
+1° lugar
+2° lugar
+
+Ejemplo:
+
+2-4
+
+Se genera:
+
+PALE 2-4
+
+---
+
+TRIFECTA
+
+Si se selecciona:
+
+1°
+2°
+3°
+
+Ejemplo:
+
+2-4-6
+
+Se genera:
+
+TRIFECTA 2-4-6
+
+=================================================================
+
+PANEL DE JUGADAS ESPECIALES
+
+A la derecha.
+
+2x2 botones.
+
+NO repetir botones.
+
+NO colocarlos por fila.
+
+Único panel global.
+
+---
+
+BOTÓN 1
+
+PA' TRÁ Y PA' LANTE
+
+Icono:
+
+↑↓
+
+Cuando existe:
+
+1-3
+
+Generar:
+
+1-3
+3-1
+
+Agregar ambas jugadas.
+
+---
+
+BOTÓN 2
+
+REVERSE FORECAST
+
+Icono:
+
+↔
+
+Apuesta combinada inversa.
+
+Trabaja sobre los dos perros seleccionados.
+
+---
+
+BOTÓN 3
+
+R
+
+Texto:
+
+RULAY
+
+Si seleccionan:
+
+1
+
+Generar:
+
+1-2
+1-3
+1-4
+1-5
+1-6
+
+---
+
+BOTÓN 4
+
+R/2
+
+Texto:
+
+MITAD
+
+Si existen:
+
+1-2
+1-2-6
+1-4
+
+Generar además:
+
+2-1
+6-2-1
+4-1
+
+Mantener originales.
+
+Agregar inversas.
+
+=================================================================
+
+MONTOS
+
+NO EXISTE TECLADO NUMÉRICO.
+
+NO EXISTE INPUT MANUAL.
+
+NO EXISTE CAMPO DE TEXTO.
+
+ÚNICAMENTE:
+
+25
+
+50
+
+100
+
+200
+
+Botones grandes.
+
+El operador puede pulsar múltiples veces.
+
+Ejemplo:
+
+200 + 200 + 100
+
+Resultado:
+
+500
+
+=================================================================
+
+TICKET ACTUAL
+
+Panel central inferior.
+
+Columnas:
+
+#
+
+APUESTA
+
+MONTO
+
+Eliminar
+
+Ejemplo:
+
+1 | 1-3 | 50 | X
+
+2 | 3-1 | 50 | X
+
+3 | 1-2-6 | 100 | X
+
+4 | 6-2-1 | 100 | X
+
+Mostrar:
+
+TOTAL RD$
+
+=================================================================
+
+BOTONES FINALES
+
+Botón rojo:
+
+BORRAR TICKET
+
+---
+
+Botón amarillo:
+
+IMPRIMIR TICKET
+
+Debe ser el botón visual más importante.
+
+=================================================================
+
+REGLAS DE UX
+
+* Operación táctil.
+* Botones muy grandes.
+* Alto contraste.
+* Lectura rápida.
+* Uso continuo por operadores.
+
+=================================================================
+
+PROHIBIDO
+
+* Cards modernas.
+* Sidebar administrativa.
+* Dashboard SaaS.
+* Widgets de analytics.
+* Gráficas.
+* Tablas financieras.
+* Diseño minimalista.
+
+Debe parecer una terminal real de apuestas de carreras de galgos utilizada en una banca física profesional.

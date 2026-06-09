@@ -1,0 +1,302 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* POS Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 2px;
+}
+
+/* Dog button base */
+.dog-btn {
+  @apply flex items-center justify-center cursor-pointer select-none transition-all duration-100 active:scale-95;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.dog-btn:hover {
+  filter: brightness(1.15);
+  border-color: rgba(255,255,255,0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 12px rgba(255,255,255,0.1);
+}
+
+.dog-btn.selected {
+  border-color: #f5c518 !important;
+  box-shadow: 0 0 0 2px rgba(245,197,24,0.95), 0 0 18px rgba(245,197,24,0.55), 0 4px 18px rgba(0,0,0,0.65) !important;
+  filter: brightness(1.25) saturate(1.05);
+}
+
+.dog-btn.disabled {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+}
+
+.dog-btn.disabled:hover {
+  filter: grayscale(0.85) brightness(0.7);
+  border-color: rgba(255,255,255,0.06);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+  transform: none;
+}
+
+/* Dog 6 - stripes */
+.dog-stripes {
+  background: repeating-linear-gradient(
+    0deg,
+    #000000 0px,
+    #000000 10px,
+    #ffffff 10px,
+    #ffffff 20px
+  );
+}
+
+/* POS Panel styles */
+.pos-panel {
+  background: rgba(15,15,15,0.92);
+  border: 1px solid #2a2a2a;
+}
+
+.pos-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Amount button */
+.amount-btn {
+  @apply flex items-center justify-center cursor-pointer select-none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  background: #1e1e1e;
+  border: 2px solid #333;
+  color: #f5c518;
+  transition: all 0.1s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.amount-btn:hover {
+  background: #2a2a2a;
+  border-color: #f5c518;
+  box-shadow: 0 4px 16px rgba(245,197,24,0.3);
+  transform: translateY(-1px);
+}
+
+.amount-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Special action button */
+.special-btn {
+  background: #0d3a1a;
+  border: 2px solid #1a5c2a;
+  color: white;
+  transition: all 0.15s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.special-btn:hover {
+  background: #1a5c2a;
+  border-color: #22c55e;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.2);
+}
+
+.special-btn:active {
+  transform: scale(0.97);
+}
+
+/* Ticker animation */
+@keyframes ticker-move {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-200%); }
+}
+
+.ticker-content {
+  animation: ticker-move 30s linear infinite;
+  white-space: nowrap;
+}
+
+/* Progress bar */
+.progress-bar-fill {
+  transition: width 1s linear;
+}
+
+/* Blink animation */
+@keyframes blink-anim {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.blink {
+  animation: blink-anim 1s step-end infinite;
+}
+
+/* Status badge */
+.status-open {
+  color: #22c55e;
+  text-shadow: 0 0 8px rgba(34,197,94,0.6);
+}
+
+.status-running {
+  color: #f5c518;
+  text-shadow: 0 0 8px rgba(245,197,24,0.6);
+}
+
+.status-closed {
+  color: #ef4444;
+  text-shadow: 0 0 8px rgba(239,68,68,0.6);
+}
+
+/* Header nav button */
+.nav-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #aaa;
+  cursor: pointer;
+  padding: 8px 20px;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.nav-btn:hover {
+  color: #fff;
+  border-bottom-color: #f5c518;
+}
+
+.nav-btn.active {
+  color: #f5c518;
+  border-bottom-color: #f5c518;
+}
+
+/* Ticket row */
+.ticket-row {
+  border-bottom: 1px solid #222;
+  transition: background 0.15s;
+}
+
+.ticket-row:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+/* Delete X button */
+.delete-btn {
+  background: #8b0000;
+  color: white;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: bold;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.delete-btn:hover {
+  background: #cc0000;
+}
+
+/* Action buttons */
+.btn-borrar {
+  background: linear-gradient(180deg, #cc0000 0%, #8b0000 100%);
+  border: 2px solid #ff2222;
+  color: white;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 4px 12px rgba(204,0,0,0.4);
+}
+
+.btn-borrar:hover {
+  background: linear-gradient(180deg, #ff0000 0%, #cc0000 100%);
+  box-shadow: 0 4px 20px rgba(255,0,0,0.5);
+}
+
+.btn-borrar:active {
+  transform: scale(0.97);
+}
+
+.btn-imprimir {
+  background: linear-gradient(180deg, #f5c518 0%, #d4a40a 100%);
+  border: 3px solid #f5c518;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 6px 18px rgba(245,197,24,0.5), 0 0 18px rgba(245,197,24,0.25);
+}
+
+.btn-imprimir:hover {
+  background: linear-gradient(180deg, #ffe066 0%, #f5c518 100%);
+  box-shadow: 0 10px 28px rgba(245,197,24,0.65), 0 0 26px rgba(245,197,24,0.35);
+}
+
+.btn-imprimir:active {
+  transform: scale(0.97);
+}
+
+.btn-imprimir:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.print-only {
+  display: none;
+}
+
+@page {
+  size: 80mm auto;
+  margin: 0;
+}
+
+@media print {
+  html, body, #root {
+    width: auto;
+    height: auto;
+    overflow: visible;
+    background: #fff !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+    background: #fff !important;
+  }
+}
