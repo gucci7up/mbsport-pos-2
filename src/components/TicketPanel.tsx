@@ -10,14 +10,22 @@ export const TicketPanel: React.FC = () => {
   const displayType = draft?.type ?? ''
   const displaySelection = draft?.selection ?? ''
   const displayAmount = draft ? draft.amount.toFixed(0) : pendingAmount > 0 ? pendingAmount.toFixed(0) : ''
+  const ticketGridColumns = 'clamp(22px, 2vw, 26px) clamp(68px, 8vw, 86px) minmax(0, 1fr) clamp(86px, 10vw, 110px) clamp(92px, 11vw, 120px) clamp(24px, 2vw, 28px)'
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'rgba(10,10,10,0.95)', border: '1px solid #2a2a2a' }}>
+    <div
+      className="flex flex-col h-full"
+      style={{
+        background: 'rgba(10,10,10,0.95)',
+        border: '1px solid rgba(245,197,24,0.18)',
+        boxShadow: '0 14px 34px rgba(0,0,0,0.28), 0 0 18px rgba(245,197,24,0.06)',
+      }}
+    >
       <div className="px-3 pt-2 pb-2 border-b border-gray-800">
         <div className="flex items-center justify-between">
           <span
             className="text-pos-yellow font-black"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '1.15rem', letterSpacing: '0.08em', color: '#f5c518' }}
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '1.22rem', letterSpacing: '0.1em', color: '#f5c518' }}
           >
             TICKET ACTUAL
           </span>
@@ -27,11 +35,11 @@ export const TicketPanel: React.FC = () => {
         </div>
 
         <div
-          className="mt-2 rounded px-2 py-2"
+          className="mt-2 rounded px-3 py-3"
           style={{
             background: 'rgba(0,0,0,0.45)',
             border: showActual ? '1px solid rgba(245,197,24,0.35)' : '1px solid rgba(255,255,255,0.08)',
-            boxShadow: showActual ? '0 0 14px rgba(245,197,24,0.18)' : 'none',
+            boxShadow: showActual ? '0 0 18px rgba(245,197,24,0.2)' : 'none',
           }}
         >
           <div className="flex items-center justify-between gap-2">
@@ -56,7 +64,7 @@ export const TicketPanel: React.FC = () => {
                 color: draft ? '#f5c518' : '#555',
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 900,
-                fontSize: '1.25rem',
+                fontSize: '1.35rem',
                 letterSpacing: '0.12em',
                 lineHeight: 1,
               }}
@@ -69,7 +77,7 @@ export const TicketPanel: React.FC = () => {
                   color: showActual ? '#eaeaea' : '#555',
                   fontFamily: "'Roboto Mono', monospace",
                   fontWeight: 900,
-                  fontSize: '1.25rem',
+                  fontSize: '1.35rem',
                   letterSpacing: '0.08em',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
@@ -83,7 +91,7 @@ export const TicketPanel: React.FC = () => {
                 <div style={{ color: '#666', fontSize: '0.72rem', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '0.12em' }}>
                   RD$
                 </div>
-                <div style={{ color: displayAmount ? '#f5c518' : '#555', fontFamily: "'Roboto Mono', monospace", fontWeight: 900, fontSize: '1.25rem', lineHeight: 1 }}>
+                <div style={{ color: displayAmount ? '#f5c518' : '#555', fontFamily: "'Roboto Mono', monospace", fontWeight: 900, fontSize: '1.45rem', lineHeight: 1 }}>
                   {displayAmount}
                 </div>
               </div>
@@ -95,7 +103,7 @@ export const TicketPanel: React.FC = () => {
       {/* Column headers */}
       <div
         className="grid px-3 py-1 border-b border-gray-800"
-        style={{ gridTemplateColumns: '26px 86px 1fr 110px 120px 28px', gap: '6px' }}
+        style={{ gridTemplateColumns: ticketGridColumns, gap: '6px' }}
       >
         {['#', 'TIPO', 'SELECCIÓN', 'MONTO', 'EST.', 'X'].map((col, i) => (
           <span key={i} style={{ color: '#666', fontSize: '0.7rem', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '0.05em' }}>
@@ -120,7 +128,7 @@ export const TicketPanel: React.FC = () => {
               <div
                 key={bet.id}
                 className="ticket-row grid items-center px-3 py-1"
-                style={{ gridTemplateColumns: '26px 86px 1fr 110px 120px 28px', gap: '6px' }}
+                style={{ gridTemplateColumns: ticketGridColumns, gap: '6px' }}
               >
                 <span style={{ color: '#777', fontSize: '0.85rem', fontFamily: "'Roboto Mono', monospace", fontWeight: 800 }}>
                   {index + 1}

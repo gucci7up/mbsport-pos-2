@@ -10,17 +10,29 @@ export const AmountButtons: React.FC = () => {
   return (
     <div className="flex flex-col gap-2">
       <div
-        className="rounded px-3 py-2"
+        className="rounded px-3 py-3"
         style={{
           background: 'rgba(0,0,0,0.45)',
           border: '1px solid rgba(245,197,24,0.28)',
           boxShadow: pendingAmount > 0 ? '0 0 12px rgba(245,197,24,0.18)' : 'none',
         }}
       >
-        <div style={{ color: '#f5c518', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, letterSpacing: '0.18em', fontSize: '0.8rem' }}>
+        <div style={{ color: '#f5c518', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, letterSpacing: '0.18em', fontSize: '0.8rem', textAlign: 'center' }}>
           MONTO ACTUAL
         </div>
-        <div style={{ color: pendingAmount > 0 ? '#f5c518' : '#666', fontFamily: "'Roboto Mono', monospace", fontWeight: 900, fontSize: '1.6rem', lineHeight: 1.05 }}>
+        <div
+          style={{
+            color: pendingAmount > 0 ? '#f5c518' : '#666',
+            fontFamily: "'Roboto Mono', monospace",
+            fontWeight: 900,
+            fontSize: 'clamp(2.625rem, 3.8vw, 3.3rem)',
+            minHeight: '42px',
+            lineHeight: 1,
+            textAlign: 'center',
+            textShadow: pendingAmount > 0 ? '0 0 18px rgba(245,197,24,0.22)' : 'none',
+            marginTop: '6px',
+          }}
+        >
           RD$ {pendingAmount.toFixed(0)}
         </div>
       </div>
@@ -31,7 +43,7 @@ export const AmountButtons: React.FC = () => {
             key={amt}
             id={`btn-amount-${amt}`}
             className="amount-btn rounded-lg"
-            style={{ height: '56px' }}
+            style={{ height: 'clamp(52px, 7vh, 64px)' }}
             onClick={() => addAmountToPending(amt)}
           >
             {amt}

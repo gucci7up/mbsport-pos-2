@@ -1,5 +1,6 @@
 import React from 'react'
 import { usePOSStore } from '../store/posStore'
+import BrandLogo from './BrandLogo'
 
 const RaceInfoBar: React.FC = () => {
   const { raceNumber, raceStatus, startTime, activeTime, timeRemaining, totalTime } = usePOSStore()
@@ -16,7 +17,7 @@ const RaceInfoBar: React.FC = () => {
 
   return (
     <div
-      className="flex items-center gap-4 px-4 py-2"
+      className="flex flex-wrap items-center gap-4 px-4 py-2"
       style={{
         background: 'rgba(0,0,0,0.85)',
         borderBottom: '1px solid #1a1a1a',
@@ -79,7 +80,7 @@ const RaceInfoBar: React.FC = () => {
       {/* ESTADO */}
       <div className="flex flex-col items-center">
         <span style={{ color: '#888', fontSize: '0.65rem', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '0.1em' }}>ESTADO</span>
-        <span className={`font-black ${statusClass}`} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '1.4rem', letterSpacing: '0.1em' }}>
+        <span className={`race-status-badge ${statusClass}`}>
           {raceStatus}
         </span>
       </div>
@@ -93,62 +94,22 @@ const Header: React.FC = () => {
   const NAV_TABS = ['JUGADA', 'RESULTADOS', 'CUOTAS', 'VENTAS', 'CAJA'] as const
 
   return (
-    <div style={{ background: '#000', borderBottom: '2px solid #1a1a1a' }}>
+    <div
+      style={{
+        background: '#000',
+        border: '1px solid #1a1a1a',
+        borderRadius: '10px',
+        overflow: 'hidden',
+        boxShadow: '0 10px 28px rgba(0,0,0,0.3)',
+      }}
+    >
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4" style={{ height: '60px', borderBottom: '1px solid #1a1a1a' }}>
+      <div className="flex flex-col gap-3 px-4 py-3 xl:flex-row xl:items-center xl:justify-between" style={{ borderBottom: '1px solid #1a1a1a' }}>
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col leading-none">
-            <div className="flex items-center gap-1">
-              <span
-                style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 800,
-                  fontSize: '2rem',
-                  color: '#f5c518',
-                  letterSpacing: '0.05em',
-                  lineHeight: 1,
-                }}
-              >
-                MB
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 800,
-                  fontSize: '2rem',
-                  color: '#fff',
-                  letterSpacing: '0.05em',
-                  lineHeight: 1,
-                }}
-              >
-                RACES
-              </span>
-              {/* Dog silhouette */}
-              <svg width="36" height="28" viewBox="0 0 36 28" fill="none" style={{ marginLeft: '4px' }}>
-                <path d="M2 22 C4 18, 8 14, 12 12 C14 11, 16 10, 18 8 C20 6, 22 4, 25 3 C27 2, 30 2, 32 4 C34 6, 34 9, 32 11 C30 13, 28 13, 26 14 C24 15, 22 16, 20 18 C18 20, 16 23, 14 25 L10 25 L10 22 L8 25 L4 25 Z" fill="#f5c518" />
-                <circle cx="30" cy="7" r="2" fill="#f5c518" />
-              </svg>
-            </div>
-            <span
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 400,
-                fontSize: '0.65rem',
-                color: '#888',
-                letterSpacing: '0.2em',
-                lineHeight: 1,
-              }}
-            >
-              RACING DOGS
-            </span>
-          </div>
-          {/* Dominican flag */}
-          <div style={{ marginLeft: '4px', fontSize: '1.1rem' }}>🇩🇴</div>
-        </div>
+        <BrandLogo />
 
         {/* Nav tabs */}
-        <div className="flex items-end h-full">
+        <div className="flex flex-wrap items-end gap-x-1 gap-y-1">
           {NAV_TABS.map(tab => (
             <button
               key={tab}
@@ -162,7 +123,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Right info */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 xl:justify-end">
           {/* Agency / User */}
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">

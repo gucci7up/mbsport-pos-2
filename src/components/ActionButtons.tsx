@@ -24,8 +24,8 @@ export const ActionButtons: React.FC = () => {
     <div className="grid grid-cols-2 gap-2">
       <button
         id="btn-agregar"
-        className="special-btn rounded-lg col-span-2 flex items-center justify-center gap-3"
-        style={{ height: '64px', opacity: canAdd ? 1 : 0.5 }}
+        className="special-btn add-btn rounded-lg col-span-2 flex items-center justify-center gap-3"
+        style={{ height: 'clamp(64px, 8vh, 78px)' }}
         onClick={() => {
           const result = addCurrentBet()
           if (result.ok) {
@@ -40,7 +40,7 @@ export const ActionButtons: React.FC = () => {
           style={{
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 900,
-            fontSize: '2.0rem',
+            fontSize: '2.05rem',
             lineHeight: 1,
           }}
         >
@@ -50,7 +50,7 @@ export const ActionButtons: React.FC = () => {
           style={{
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 900,
-            fontSize: '1.35rem',
+            fontSize: '1.42rem',
             letterSpacing: '0.18em',
             lineHeight: 1,
           }}
@@ -82,7 +82,7 @@ export const ActionButtons: React.FC = () => {
       <button
         id="btn-borrar-ticket"
         className="btn-borrar rounded-lg flex flex-col items-center justify-center gap-2"
-        style={{ height: '92px' }}
+        style={{ height: 'clamp(92px, 12vh, 112px)' }}
         onClick={clearTicket}
       >
         {/* Trash icon */}
@@ -110,7 +110,7 @@ export const ActionButtons: React.FC = () => {
       <button
         id="btn-imprimir-ticket"
         className="btn-imprimir rounded-lg flex flex-col items-center justify-center gap-2"
-        style={{ height: '122px' }}
+        style={{ height: 'clamp(122px, 16vh, 148px)' }}
         onClick={printTicket}
         disabled={bets.length === 0}
       >

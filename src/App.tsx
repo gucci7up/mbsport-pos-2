@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import Header from './components/Header'
 import { DogSelectionGrid } from './components/DogSelectionGrid'
 import { SpecialPlaysPanel } from './components/SpecialPlaysPanel'
@@ -7,7 +8,10 @@ import { TicketPanel } from './components/TicketPanel'
 import { RecentTickets } from './components/RecentTickets'
 import { ActionButtons } from './components/ActionButtons'
 import { TicketPrint } from './components/TicketPrint'
+import LoginPage from './pages/LoginPage'
+import SettingsPage from './pages/SettingsPage'
 import { getBetDraftFromSelection, usePOSStore } from './store/posStore'
+import { isAuthenticated } from './services/auth'
 
 const PendingAmountDisplay: React.FC = () => {
   const pendingAmount = usePOSStore(s => s.pendingAmount)
@@ -47,7 +51,7 @@ const PendingAmountDisplay: React.FC = () => {
 const TickerBar: React.FC = () => {
   return (
     <div
-      className="flex items-center gap-3 overflow-hidden"
+      className="pos-footer-bar flex items-center gap-3 overflow-hidden"
       style={{
         background: '#0a0a0a',
         borderTop: '1px solid #1a1a1a',
@@ -94,7 +98,7 @@ const DateTimeDisplay: React.FC = () => {
   )
 }
 
-function App() {
+const POSScreen: React.FC = () => {
   const { tickTime } = usePOSStore()
 
   // Race countdown timer
@@ -105,9 +109,9 @@ function App() {
 
   return (
     <div
-      className="flex flex-col"
+      className="pos-screen flex flex-col"
       style={{
-        width: '100vw',
+        width: '100%',
         height: '100vh',
         overflow: 'hidden',
         position: 'relative',
@@ -130,83 +134,126 @@ function App() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 1 }} />
 
         {/* Content */}
-        <div className="flex flex-col h-full relative" style={{ zIndex: 2 }}>
-          {/* HEADER */}
-          <Header />
+        <div className="relative z-10 h-full">
+          <div className="pos-shell">
+            {/* HEADER */}
+            <Header />
 
-          {/* MAIN CONTENT */}
-          <div className="flex flex-1 gap-0 overflow-hidden p-2 gap-2">
-            {/* LEFT: Dog selection + bottom panels */}
-            <div className="flex flex-col flex-1 gap-2" style={{ minWidth: 0 }}>
-              {/* Dog Grid */}
-              <div
-                className="flex-1 p-3 rounded-lg"
-                style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
-              >
-                <DogSelectionGrid />
-              </div>
-
-              {/* Pending amount display */}
-              <div className="flex items-center justify-between gap-2 px-1">
-                <PendingAmountDisplay />
-                {/* Selection helper text */}
-                <span style={{ color: '#555', fontSize: '0.72rem', fontFamily: "'Inter', sans-serif" }}>
-                  Selección + monto → AGREGAR
-                </span>
-              </div>
-
-              {/* Bottom: Ticket + Recent Tickets */}
-              <div className="flex gap-2" style={{ height: 'clamp(240px, 34vh, 310px)' }}>
-                {/* Ticket Actual */}
-                <div className="flex-1 rounded-lg overflow-hidden">
-                  <TicketPanel />
+            {/* MAIN CONTENT */}
+            <div className="pos-main-grid">
+              {/* LEFT: Dog selection + bottom panels */}
+              <div className="pos-left-grid">
+                {/* Dog Grid */}
+                <div
+                  className="pos-panel-surface rounded-lg p-3"
+                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
+                >
+                  <DogSelectionGrid />
                 </div>
 
-                {/* Últimos Tickets */}
-                <div className="flex-1 rounded-lg overflow-hidden" style={{ maxWidth: '360px' }}>
-                  <RecentTickets />
+                {/* Pending amount display */}
+                <div className="flex items-center justify-between gap-2 px-1">
+                  <PendingAmountDisplay />
+                  {/* Selection helper text */}
+                  <span style={{ color: '#555', fontSize: '0.72rem', fontFamily: "'Inter', sans-serif" }}>
+                    Selección + monto → AGREGAR
+                  </span>
+                </div>
+
+                {/* Bottom: Ticket + Recent Tickets */}
+                <div className="pos-bottom-grid">
+                  {/* Ticket Actual */}
+                  <div className="rounded-lg overflow-hidden" style={{ minWidth: 0 }}>
+                    <TicketPanel />
+                  </div>
+
+                  {/* Últimos Tickets */}
+                  <div className="rounded-lg overflow-hidden" style={{ minWidth: 0 }}>
+                    <RecentTickets />
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT SIDEBAR */}
+              <div className="pos-sidebar-grid">
+                {/* Special Plays */}
+                <div
+                  className="pos-panel-surface rounded-lg p-2"
+                  style={{
+                    background: 'rgba(10,10,10,0.85)',
+                    border: '1px solid #222',
+                  }}
+                >
+                  <SpecialPlaysPanel />
+                </div>
+
+                {/* Amount buttons */}
+                <div
+                  className="pos-panel-surface rounded-lg p-2"
+                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
+                >
+                  <AmountButtons />
+                </div>
+
+                {/* Action buttons */}
+                <div
+                  className="pos-panel-surface rounded-lg p-2"
+                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
+                >
+                  <ActionButtons />
                 </div>
               </div>
             </div>
 
-            {/* RIGHT SIDEBAR */}
-            <div className="flex flex-col gap-2" style={{ width: '240px', flexShrink: 0 }}>
-              {/* Special Plays */}
-              <div
-                className="rounded-lg p-2"
-                style={{
-                  background: 'rgba(10,10,10,0.85)',
-                  border: '1px solid #222',
-                  height: '170px',
-                }}
-              >
-                <SpecialPlaysPanel />
-              </div>
-
-              {/* Amount buttons */}
-              <div
-                className="rounded-lg p-2"
-                style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
-              >
-                <AmountButtons />
-              </div>
-
-              {/* Action buttons */}
-              <div
-                className="rounded-lg p-2"
-                style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
-              >
-                <ActionButtons />
-              </div>
-            </div>
+            {/* TICKER BAR */}
+            <TickerBar />
           </div>
-
-          {/* TICKER BAR */}
-          <TickerBar />
         </div>
       </div>
       <TicketPrint />
     </div>
+  )
+}
+
+const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
+}
+
+const PublicOnlyRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  if (isAuthenticated()) {
+    return <Navigate to="/pos" replace />
+  }
+
+  return children
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/pos" replace />} />
+      <Route
+        path="/pos"
+        element={
+          <ProtectedRoute>
+            <POSScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicOnlyRoute>
+            <LoginPage />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   )
 }
 

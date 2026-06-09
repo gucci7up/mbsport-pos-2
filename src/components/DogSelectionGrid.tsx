@@ -74,8 +74,8 @@ export const DogSelectionGrid: React.FC = () => {
       {ROWS.map(({ label, row }) => (
         <div key={row} className="flex items-center gap-2 flex-1">
           <div
-            className="text-white font-black text-3xl w-10 text-center shrink-0"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '2rem' }}
+            className="text-white font-black text-3xl text-center shrink-0"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(1.5rem, 2vw, 2rem)', width: 'clamp(34px, 4vw, 42px)' }}
           >
             {label}
           </div>
