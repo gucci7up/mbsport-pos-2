@@ -71,7 +71,7 @@ const DogButton: React.FC<DogButtonProps> = ({ dog, row, selectedDogs, onSelect 
   const odds = DOG_ODDS[dog]
   const colorLabel = DOG_COLOR_LABELS[dog]
   const dogName = DOG_NAMES[dog]
-  const cardHeight = 'clamp(118px, 12.3vh, 132px)'
+  const cardHeight = 'clamp(142px, 13.2vh, 144px)'
   const imageHeight = 'clamp(70px, 7.3vh, 75px)'
 
   const badgeBackground = isStripes
@@ -124,7 +124,7 @@ const DogButton: React.FC<DogButtonProps> = ({ dog, row, selectedDogs, onSelect 
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: dog === 4 ? 'center 40%' : dog === 6 ? 'center 42%' : 'center 46%',
+            objectPosition: 'center 30%',
             display: 'block',
             borderRadius: '6px',
             filter: `${isHovered ? 'brightness(1.08)' : 'brightness(1)'} contrast(1.04)`,

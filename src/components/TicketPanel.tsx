@@ -159,7 +159,10 @@ export const TicketPanel: React.FC = () => {
       </div>
 
       {/* Total */}
-      <div className="flex items-center justify-between px-3 py-2 border-t border-gray-800" style={{ background: 'rgba(0,0,0,0.5)' }}>
+      <div
+        className="flex items-center justify-between px-3 py-1 border-t border-gray-800"
+        style={{ background: 'rgba(0,0,0,0.5)', marginTop: '-4px' }}
+      >
         <span
           className="font-black"
           style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '1rem', color: '#e8e8e8', letterSpacing: '0.05em' }}

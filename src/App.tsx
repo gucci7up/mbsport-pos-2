@@ -194,7 +194,7 @@ const POSScreen: React.FC = () => {
                 {/* Action buttons */}
                 <div
                   className="pos-panel-surface rounded-lg p-2"
-                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
+                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222', marginTop: '-8px' }}
                 >
                   <ActionButtons />
                 </div>

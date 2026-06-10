@@ -63,6 +63,12 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.72fr);
   gap: 10px;
+  margin-top: -2px;
+  align-items: start;
+}
+
+.pos-bottom-grid > div {
+  height: 96%;
 }
 
 .pos-sidebar-grid {
