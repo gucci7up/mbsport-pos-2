@@ -104,12 +104,23 @@ const Header: React.FC = () => {
       }}
     >
       {/* Top bar */}
-      <div className="flex flex-col gap-3 px-4 py-3 xl:flex-row xl:items-center xl:justify-between" style={{ borderBottom: '1px solid #1a1a1a' }}>
+      <div
+        className="relative flex items-center justify-between gap-3 px-3 py-2 xl:px-4"
+        style={{
+          borderBottom: '1px solid #1a1a1a',
+          minHeight: '56px',
+        }}
+      >
         {/* Logo */}
-        <BrandLogo />
+        <div style={{ flexShrink: 0 }}>
+          <BrandLogo size="sm" showFlag={false} />
+        </div>
 
         {/* Nav tabs */}
-        <div className="flex flex-wrap items-end gap-x-1 gap-y-1">
+        <div
+          className="absolute left-1/2 top-1/2 flex items-center justify-center gap-x-1"
+          style={{ transform: 'translate(-50%, -50%)' }}
+        >
           {NAV_TABS.map(tab => (
             <button
               key={tab}
@@ -123,7 +134,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Right info */}
-        <div className="flex flex-wrap items-center gap-4 xl:justify-end">
+        <div className="flex flex-shrink-0 items-center gap-2.5" style={{ marginLeft: 'auto' }}>
           {/* Agency / User */}
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
@@ -151,7 +162,7 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ width: '1px', height: '36px', background: '#333' }} />
+          <div style={{ width: '1px', height: '32px', background: '#333' }} />
 
           {/* QID */}
           <div className="flex flex-col">
@@ -163,7 +174,7 @@ const Header: React.FC = () => {
             <span style={{ color: '#555', fontSize: '0.62rem', fontFamily: "'Roboto Mono', monospace" }}>v 2.51.04</span>
           </div>
 
-          <button style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '1.2rem' }}>⚙️</button>
+          <button style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontSize: '1.1rem', padding: 0 }}>⚙️</button>
         </div>
       </div>
 

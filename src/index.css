@@ -30,7 +30,7 @@ body {
 .pos-screen {
   width: 100%;
   height: 100vh;
-  padding: 10px;
+  padding: clamp(6px, 0.8vh, 10px);
   box-sizing: border-box;
 }
 
@@ -39,7 +39,7 @@ body {
   height: 100%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 10px;
+  gap: clamp(6px, 0.9vh, 10px);
 }
 
 .pos-main-grid {
@@ -53,7 +53,7 @@ body {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 0.85fr) auto minmax(320px, 0.68fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -69,7 +69,7 @@ body {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(170px, 0.78fr) minmax(122px, auto) minmax(230px, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -93,11 +93,11 @@ body {
   }
 
   .pos-sidebar-grid {
-    grid-template-rows: minmax(180px, 0.8fr) minmax(132px, auto) minmax(250px, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
   }
 
   .pos-left-grid {
-    grid-template-rows: minmax(0, 0.84fr) auto minmax(340px, 0.7fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
   }
 }
 
@@ -111,7 +111,7 @@ body {
   }
 
   .pos-left-grid {
-    grid-template-rows: minmax(0, 0.86fr) auto minmax(300px, 0.67fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
   }
 }
 
@@ -126,7 +126,7 @@ body {
   }
 
   .pos-left-grid {
-    grid-template-rows: minmax(0, 0.88fr) auto minmax(300px, 0.76fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
   }
 
   .pos-sidebar-grid {
@@ -391,13 +391,15 @@ select {
 .nav-btn {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: #aaa;
   cursor: pointer;
-  padding: 8px 20px;
+  padding: 8px 10px;
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
-  font-size: 1rem;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-btn:hover {

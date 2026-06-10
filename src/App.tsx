@@ -152,12 +152,8 @@ const POSScreen: React.FC = () => {
                 </div>
 
                 {/* Pending amount display */}
-                <div className="flex items-center justify-between gap-2 px-1">
+                <div className="flex items-center gap-2 px-1" style={{ marginTop: '2px', marginBottom: '4px' }}>
                   <PendingAmountDisplay />
-                  {/* Selection helper text */}
-                  <span style={{ color: '#555', fontSize: '0.72rem', fontFamily: "'Inter', sans-serif" }}>
-                    Selección + monto → AGREGAR
-                  </span>
                 </div>
 
                 {/* Bottom: Ticket + Recent Tickets */}
