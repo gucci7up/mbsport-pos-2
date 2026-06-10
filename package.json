@@ -1,11 +1,16 @@
 {
   "name": "mbsport",
   "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": "22.x"
   },
   "keywords": [],
   "author": "",

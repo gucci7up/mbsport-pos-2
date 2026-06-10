@@ -9,6 +9,10 @@ import { RecentTickets } from './components/RecentTickets'
 import { ActionButtons } from './components/ActionButtons'
 import { TicketPrint } from './components/TicketPrint'
 import LoginPage from './pages/LoginPage'
+import CashPage from './pages/CashPage'
+import OddsPage from './pages/OddsPage'
+import ResultsPage from './pages/ResultsPage'
+import SalesPage from './pages/SalesPage'
 import SettingsPage from './pages/SettingsPage'
 import { getBetDraftFromSelection, usePOSStore } from './store/posStore'
 import { isAuthenticated } from './services/auth'
@@ -99,7 +103,7 @@ const DateTimeDisplay: React.FC = () => {
 }
 
 const POSScreen: React.FC = () => {
-  const { tickTime } = usePOSStore()
+  const { tickTime, activeTab } = usePOSStore()
 
   // Race countdown timer
   useEffect(() => {
@@ -140,66 +144,76 @@ const POSScreen: React.FC = () => {
             <Header />
 
             {/* MAIN CONTENT */}
-            <div className="pos-main-grid">
-              {/* LEFT: Dog selection + bottom panels */}
-              <div className="pos-left-grid">
-                {/* Dog Grid */}
-                <div
-                  className="pos-panel-surface rounded-lg p-3"
-                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
-                >
-                  <DogSelectionGrid />
-                </div>
-
-                {/* Pending amount display */}
-                <div className="flex items-center gap-2 px-1" style={{ marginTop: '2px', marginBottom: '4px' }}>
-                  <PendingAmountDisplay />
-                </div>
-
-                {/* Bottom: Ticket + Recent Tickets */}
-                <div className="pos-bottom-grid">
-                  {/* Ticket Actual */}
-                  <div className="rounded-lg overflow-hidden" style={{ minWidth: 0 }}>
-                    <TicketPanel />
+            {activeTab === 'RESULTADOS' ? (
+              <ResultsPage />
+            ) : activeTab === 'CUOTAS' ? (
+              <OddsPage />
+            ) : activeTab === 'VENTAS' ? (
+              <SalesPage />
+            ) : activeTab === 'CAJA' ? (
+              <CashPage />
+            ) : (
+              <div className="pos-main-grid">
+                {/* LEFT: Dog selection + bottom panels */}
+                <div className="pos-left-grid">
+                  {/* Dog Grid */}
+                  <div
+                    className="pos-panel-surface rounded-lg p-3"
+                    style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
+                  >
+                    <DogSelectionGrid />
                   </div>
 
-                  {/* Últimos Tickets */}
-                  <div className="rounded-lg overflow-hidden" style={{ minWidth: 0 }}>
-                    <RecentTickets />
+                  {/* Pending amount display */}
+                  <div className="flex items-center gap-2 px-1" style={{ marginTop: '2px', marginBottom: '4px' }}>
+                    <PendingAmountDisplay />
+                  </div>
+
+                  {/* Bottom: Ticket + Recent Tickets */}
+                  <div className="pos-bottom-grid">
+                    {/* Ticket Actual */}
+                    <div className="rounded-lg overflow-hidden" style={{ minWidth: 0 }}>
+                      <TicketPanel />
+                    </div>
+
+                    {/* Últimos Tickets */}
+                    <div className="rounded-lg overflow-hidden" style={{ minWidth: 0 }}>
+                      <RecentTickets />
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT SIDEBAR */}
+                <div className="pos-sidebar-grid">
+                  {/* Special Plays */}
+                  <div
+                    className="pos-panel-surface rounded-lg p-2"
+                    style={{
+                      background: 'rgba(10,10,10,0.85)',
+                      border: '1px solid #222',
+                    }}
+                  >
+                    <SpecialPlaysPanel />
+                  </div>
+
+                  {/* Amount buttons */}
+                  <div
+                    className="pos-panel-surface rounded-lg p-2"
+                    style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
+                  >
+                    <AmountButtons />
+                  </div>
+
+                  {/* Action buttons */}
+                  <div
+                    className="pos-panel-surface rounded-lg p-2"
+                    style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222', marginTop: '-8px' }}
+                  >
+                    <ActionButtons />
                   </div>
                 </div>
               </div>
-
-              {/* RIGHT SIDEBAR */}
-              <div className="pos-sidebar-grid">
-                {/* Special Plays */}
-                <div
-                  className="pos-panel-surface rounded-lg p-2"
-                  style={{
-                    background: 'rgba(10,10,10,0.85)',
-                    border: '1px solid #222',
-                  }}
-                >
-                  <SpecialPlaysPanel />
-                </div>
-
-                {/* Amount buttons */}
-                <div
-                  className="pos-panel-surface rounded-lg p-2"
-                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222' }}
-                >
-                  <AmountButtons />
-                </div>
-
-                {/* Action buttons */}
-                <div
-                  className="pos-panel-surface rounded-lg p-2"
-                  style={{ background: 'rgba(10,10,10,0.85)', border: '1px solid #222', marginTop: '-8px' }}
-                >
-                  <ActionButtons />
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* TICKER BAR */}
             <TickerBar />
