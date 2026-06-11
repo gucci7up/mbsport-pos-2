@@ -302,7 +302,7 @@ const OddsPage: React.FC = () => {
         <div className="odds-right-panel pos-panel-surface rounded-lg overflow-hidden">
           <div className="results-panel-header">
             <span className="results-panel-title">ESTADO CUOTAS</span>
-            <span className="results-panel-meta">Mock</span>
+            <span className="results-panel-meta">{oddsError ? 'ERROR' : odds ? 'REAL' : 'MOCK'}</span>
           </div>
           <div className="odds-right-body">
             <div className="results-detail-item">
@@ -317,9 +317,19 @@ const OddsPage: React.FC = () => {
             </div>
             <div className="results-detail-item">
               <span className="results-detail-label">Estado API</span>
-              <span className="results-status-badge" style={{ color: '#f5c518', border: '1px solid rgba(245,197,24,0.28)', background: 'rgba(38,30,5,0.88)' }}>
-                NO CONECTADO
-              </span>
+              {oddsError ? (
+                <span className="results-status-badge" style={{ color: '#ef4444', border: '1px solid rgba(239,68,68,0.28)', background: 'rgba(44,11,11,0.88)' }}>
+                  ERROR
+                </span>
+              ) : odds ? (
+                <span className="results-status-badge" style={{ color: '#22c55e', border: '1px solid rgba(34,197,94,0.28)', background: 'rgba(20,83,45,0.88)' }}>
+                  CONECTADO
+                </span>
+              ) : (
+                <span className="results-status-badge" style={{ color: '#f5c518', border: '1px solid rgba(245,197,24,0.28)', background: 'rgba(38,30,5,0.88)' }}>
+                  CARGANDO
+                </span>
+              )}
             </div>
             <div className="results-detail-item">
               <span className="results-detail-label">Estado WebSocket</span>
