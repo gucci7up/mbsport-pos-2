@@ -17,8 +17,9 @@ export const ActionButtons: React.FC = () => {
     return () => clearTimeout(t)
   }, [flash])
 
+  const raceStatus = usePOSStore(s => s.raceStatus)
   const hasAnySelection = selectedDogs.some(dog => dog !== null)
-  const canAdd = hasAnySelection && pendingAmount > 0
+  const canAdd = hasAnySelection && pendingAmount > 0 && raceStatus === 'OPEN'
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -112,7 +113,7 @@ export const ActionButtons: React.FC = () => {
         className="btn-imprimir rounded-lg flex flex-col items-center justify-center gap-2"
         style={{ height: 'clamp(122px, 16vh, 148px)' }}
         onClick={printTicket}
-        disabled={bets.length === 0}
+        disabled={bets.length === 0 || raceStatus !== 'OPEN'}
       >
         {/* Printer icon */}
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">

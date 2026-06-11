@@ -2,18 +2,22 @@ import { apiFetchJson } from './http'
 import { ApiError } from './http'
 
 export type AuthLoginPayload = {
-  agency: string
+  agency?: string
   username: string
   password: string
   rememberMe: boolean
 }
 
+export type UserProfile = {
+  id: string | number
+  username: string
+  role: string
+  agency: string
+}
+
 export type AuthLoginResponse = {
   token: string
-  user: {
-    username: string
-    agency: string
-  }
+  user: UserProfile
 }
 
 export type AuthSession = AuthLoginResponse & {
@@ -22,6 +26,7 @@ export type AuthSession = AuthLoginResponse & {
 }
 
 const AUTH_STORAGE_KEY = 'mbraces_auth_session'
+const DEMO_ENABLED = import.meta.env.VITE_ENABLE_DEMO === 'true'
 const DEMO_USERNAME = 'admin'
 const DEMO_PASSWORD = 'admin123'
 
@@ -70,12 +75,14 @@ export const authLogin = async (payload: AuthLoginPayload): Promise<AuthLoginRes
   const normalizedUsername = payload.username.trim()
   const normalizedPassword = payload.password.trim()
 
-  if (normalizedUsername === DEMO_USERNAME && normalizedPassword === DEMO_PASSWORD) {
+  if (DEMO_ENABLED && normalizedUsername === DEMO_USERNAME && normalizedPassword === DEMO_PASSWORD) {
     const demoResponse: AuthLoginResponse = {
       token: `demo-token-${Date.now()}`,
       user: {
+        id: 'demo-id',
         username: DEMO_USERNAME,
-        agency: payload.agency,
+        role: 'admin',
+        agency: payload.agency ?? 'AGENCIA DEMO',
       },
     }
 
@@ -92,14 +99,27 @@ export const authLogin = async (payload: AuthLoginPayload): Promise<AuthLoginRes
     throw new ApiError('invalid', 'Usuario o contraseña incorrectos.')
   }
 
-  const response = await apiFetchJson<AuthLoginResponse>('/auth/login', {
+  const loginResponse = await apiFetchJson<{ access_token: string }>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      ...payload,
       username: normalizedUsername,
       password: normalizedPassword,
     }),
   })
+
+  const token = loginResponse.access_token
+
+  const userProfile = await apiFetchJson<UserProfile>('/users/me', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  const response: AuthLoginResponse = {
+    token,
+    user: userProfile,
+  }
 
   saveAuthSession({
     ...response,

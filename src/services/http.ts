@@ -1,4 +1,5 @@
 import { getRuntimeConfig } from '../config/runtime'
+import { getAuthSession } from './auth'
 
 export type ApiErrorCode = 'invalid' | 'expired' | 'server_unavailable' | 'connection' | 'unknown'
 
@@ -15,6 +16,10 @@ export class ApiError extends Error {
 
 type Json = Record<string, unknown> | Array<unknown> | null
 
+let serverTimeOffset = 0
+
+export const getServerTime = (): number => Date.now() + serverTimeOffset
+
 export const apiFetchJson = async <T>(path: string, init?: RequestInit): Promise<T> => {
   const { apiUrl } = getRuntimeConfig()
   if (!apiUrl) {
@@ -24,14 +29,28 @@ export const apiFetchJson = async <T>(path: string, init?: RequestInit): Promise
   const url = `${apiUrl}${path.startsWith('/') ? path : `/${path}`}`
   let response: Response
 
+  const session = getAuthSession()
+  const authHeaders: Record<string, string> = session?.token
+    ? { Authorization: `Bearer ${session.token}` }
+    : {}
+
+  const start = Date.now()
   try {
     response = await fetch(url, {
       ...init,
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...(init?.headers ?? {}),
       },
     })
+    const end = Date.now()
+    const serverDate = response.headers.get('Date')
+    if (serverDate) {
+      const serverTime = new Date(serverDate).getTime()
+      const rtt = (end - start) / 2
+      serverTimeOffset = serverTime + rtt - end
+    }
   } catch {
     throw new ApiError('connection', 'Error de conexión')
   }

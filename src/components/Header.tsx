@@ -3,7 +3,7 @@ import { usePOSStore } from '../store/posStore'
 import BrandLogo from './BrandLogo'
 
 const RaceInfoBar: React.FC = () => {
-  const { raceNumber, raceStatus, startTime, activeTime, timeRemaining, totalTime } = usePOSStore()
+  const { raceNumber, raceStatus, startTime, activeTime, timeRemaining, totalTime, serverError } = usePOSStore()
 
   const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0')
   const seconds = (timeRemaining % 60).toString().padStart(2, '0')
@@ -77,12 +77,39 @@ const RaceInfoBar: React.FC = () => {
 
       <div style={{ width: '1px', height: '40px', background: '#333' }} />
 
+      {serverError && (
+        <div 
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded" 
+          style={{ 
+            background: 'rgba(127,29,29,0.4)', 
+            border: '1px solid rgba(239,68,68,0.4)', 
+            color: '#f87171', 
+            fontSize: '0.78rem', 
+            fontFamily: "'Barlow Condensed', sans-serif", 
+            fontWeight: 700, 
+            letterSpacing: '0.05em',
+            whiteSpace: 'nowrap',
+            animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }}
+        >
+          ⚠️ SIN CONEXIÓN CON SERVIDOR
+        </div>
+      )}
+
+      {serverError && <div style={{ width: '1px', height: '40px', background: '#333' }} />}
+
       {/* ESTADO */}
       <div className="flex flex-col items-center">
         <span style={{ color: '#888', fontSize: '0.65rem', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '0.1em' }}>ESTADO</span>
-        <span className={`race-status-badge ${statusClass}`}>
-          {raceStatus}
-        </span>
+        {serverError ? (
+          <span className="race-status-badge status-closed" style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', color: '#f87171', whiteSpace: 'nowrap' }}>
+            DESCONECTADO
+          </span>
+        ) : (
+          <span className={`race-status-badge ${statusClass}`}>
+            {raceStatus}
+          </span>
+        )}
       </div>
     </div>
   )

@@ -9,7 +9,8 @@ import { ApiError } from '../services/http'
 
 const delay = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms))
 const POS_VERSION = '2.51.04'
-const LOGIN_AGENCIES = ['AG. CENTRAL', 'VILLA JUANA', 'SANTIAGO CENTRO', 'SAN CRISTOBAL']
+// const LOGIN_AGENCIES = ['AG. CENTRAL', 'VILLA JUANA', 'SANTIAGO CENTRO', 'SAN CRISTOBAL']
+const LOGIN_AGENCIES: string[] = [] // Deshabilitado para la integración real
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()
@@ -70,9 +71,6 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    console.log('Login iniciado')
-    console.log('Usuario:', username)
-    console.log('Agencia:', agency)
     setAlert(null)
     setOverlayVisible(true)
     setOverlayMessage('Validando credenciales...')
@@ -101,19 +99,28 @@ const LoginPage: React.FC = () => {
       }
     } catch (error) {
       const apiError = error instanceof ApiError ? error : null
-      const message =
-        apiError?.code === 'invalid'
-          ? 'Usuario o contraseña incorrectos.'
-          : apiError?.code === 'expired'
-            ? 'Sesión expirada.'
-            : apiError?.code === 'server_unavailable'
-              ? 'Servidor fuera de línea.'
-              : apiError?.code === 'connection'
-                ? 'Error de conexión.'
-                : error instanceof Error && error.message === 'navigation_error'
-                  ? 'Error de navegación a POS'
-                  : 'Usuario o contraseña incorrectos.'
-      const tone = apiError?.code === 'invalid' || apiError?.code === 'expired' ? 'warning' : 'error'
+      let message = 'Error desconocido.'
+      let tone: 'warning' | 'error' = 'error'
+
+      if (apiError) {
+        if (apiError.status === 401) {
+          message = 'Credenciales inválidas'
+          tone = 'warning'
+        } else if (apiError.status && apiError.status >= 500) {
+          message = 'Error servidor'
+        } else if (apiError.code === 'connection') {
+          message = 'Sin conexión'
+        } else {
+          message = apiError.message
+        }
+      } else if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('connection')) {
+          message = 'Sin conexión'
+        } else {
+          message = error.message
+        }
+      }
+
       setAlert({ tone, message })
     } finally {
       setOverlayVisible(false)
@@ -225,28 +232,12 @@ const LoginPage: React.FC = () => {
                 <button
                   className="login-dropdown-trigger"
                   type="button"
-                  disabled={isSubmitting}
+                  disabled={true}
                   aria-haspopup="listbox"
-                  aria-expanded={agencyMenuOpen}
-                  onClick={() => setAgencyMenuOpen(current => !current)}
-                  onKeyDown={event => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault()
-                      setAgencyMenuOpen(current => !current)
-                    }
-
-                    if (event.key === 'ArrowDown') {
-                      event.preventDefault()
-                      setAgencyMenuOpen(true)
-                    }
-
-                    if (event.key === 'Escape') {
-                      setAgencyMenuOpen(false)
-                    }
-                  }}
+                  aria-expanded={false}
                 >
-                  <span className="login-dropdown-value">🏢 {agency}</span>
-                  <span className={`login-dropdown-chevron ${agencyMenuOpen ? 'is-open' : ''}`} aria-hidden="true">
+                  <span className="login-dropdown-value" style={{ opacity: 0.6 }}>🏢 Asignada automáticamente</span>
+                  <span className="login-dropdown-chevron" aria-hidden="true" style={{ opacity: 0.4 }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                       <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>

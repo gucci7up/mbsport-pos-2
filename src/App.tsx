@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import Header from './components/Header'
 import { DogSelectionGrid } from './components/DogSelectionGrid'
 import { SpecialPlaysPanel } from './components/SpecialPlaysPanel'
@@ -16,6 +17,7 @@ import SalesPage from './pages/SalesPage'
 import SettingsPage from './pages/SettingsPage'
 import { getBetDraftFromSelection, usePOSStore } from './store/posStore'
 import { isAuthenticated } from './services/auth'
+import { getCurrentRace } from './services/races'
 
 const PendingAmountDisplay: React.FC = () => {
   const pendingAmount = usePOSStore(s => s.pendingAmount)
@@ -103,9 +105,31 @@ const DateTimeDisplay: React.FC = () => {
 }
 
 const POSScreen: React.FC = () => {
-  const { tickTime, activeTab } = usePOSStore()
+  const { tickTime, activeTab, updateRaceFromBackend, setServerError } = usePOSStore()
 
-  // Race countdown timer
+  // Poll current race status every 5 seconds
+  const { data: currentRace, error } = useQuery({
+    queryKey: ['currentRace'],
+    queryFn: getCurrentRace,
+    refetchInterval: 5000,
+    retry: true,
+  })
+
+  // Synchronize store with queried race
+  useEffect(() => {
+    if (currentRace) {
+      updateRaceFromBackend(currentRace)
+    }
+  }, [currentRace, updateRaceFromBackend])
+
+  // Propagate API connection error to store
+  useEffect(() => {
+    if (error) {
+      setServerError('Sin conexión con servidor')
+    }
+  }, [error, setServerError])
+
+  // Race countdown timer (local tick)
   useEffect(() => {
     const t = setInterval(tickTime, 1000)
     return () => clearInterval(t)
@@ -261,7 +285,14 @@ function App() {
           </PublicOnlyRoute>
         }
       />
-      <Route path="/settings" element={<SettingsPage />} />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )

@@ -10,12 +10,14 @@ export const SpecialPlaysPanel: React.FC = () => {
     selectedDogs,
     pendingAmount,
     bets,
+    raceStatus,
   } = usePOSStore()
 
-  const hasTwo = selectedDogs[0] !== null && selectedDogs[1] !== null
-  const hasOne = selectedDogs[0] !== null
-  const hasAmount = pendingAmount > 0
-  const hasTicketBets = bets.length > 0
+  const isOpen = raceStatus === 'OPEN'
+  const hasTwo = selectedDogs[0] !== null && selectedDogs[1] !== null && isOpen
+  const hasOne = selectedDogs[0] !== null && isOpen
+  const hasAmount = pendingAmount > 0 && isOpen
+  const hasTicketBets = bets.length > 0 && isOpen
 
   return (
     <div className="grid grid-cols-2 gap-2" style={{ height: '100%' }}>

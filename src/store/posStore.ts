@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { getServerTime } from '../services/http'
+import { RaceDetail } from '../services/races'
 
 export type BetType = 'QUINIELA' | 'EXACTA' | 'TRIFECTA'
 
@@ -39,11 +41,17 @@ export interface PrintableTicket {
 export interface POSState {
   // Race info
   raceNumber: number
-  raceStatus: 'OPEN' | 'RUNNING' | 'CLOSED'
+  raceStatus: 'OPEN' | 'RUNNING' | 'CLOSED' | 'FINISHED'
   startTime: string
   activeTime: string
   timeRemaining: number
   totalTime: number
+  serverError: string | null
+  openAt: string | null
+  closeAt: string | null
+  runAt: string | null
+  finishedAt: string | null
+  saleEndAt: string | null
 
   // Tab
   activeTab: 'JUGADA' | 'RESULTADOS' | 'CUOTAS' | 'VENTAS' | 'CAJA'
@@ -75,6 +83,8 @@ export interface POSState {
   clearTicket: () => void
   printTicket: () => void
   tickTime: () => void
+  updateRaceFromBackend: (race: RaceDetail) => void
+  setServerError: (error: string | null) => void
 
   // Apply special plays
   applyPaTraPaLante: () => void
@@ -182,9 +192,15 @@ export const usePOSStore = create<POSState>((set, get) => ({
   raceNumber: 397,
   raceStatus: 'OPEN',
   startTime: '12:05:00',
-  activeTime: formatTime(new Date()),
+  activeTime: formatTime(new Date(getServerTime())),
   timeRemaining: 162,
   totalTime: 300,
+  serverError: null,
+  openAt: null,
+  closeAt: null,
+  runAt: null,
+  finishedAt: null,
+  saleEndAt: null,
 
   activeTab: 'JUGADA',
 
@@ -196,6 +212,42 @@ export const usePOSStore = create<POSState>((set, get) => ({
   printableTicket: null,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
+
+  setServerError: (error) => set({ serverError: error }),
+
+  updateRaceFromBackend: (race) => {
+    const nowTime = getServerTime()
+    const endTime = new Date(race.saleEndAt).getTime()
+    const openTime = new Date(race.openAt).getTime()
+    const runTime = new Date(race.runAt)
+
+    const timeRemaining = (race.status === 'OPEN')
+      ? Math.max(0, Math.floor((endTime - nowTime) / 1000))
+      : 0
+
+    const totalTime = Math.max(1, Math.floor((endTime - openTime) / 1000))
+
+    const formatHour = (date: Date) => {
+      const h = date.getHours().toString().padStart(2, '0')
+      const m = date.getMinutes().toString().padStart(2, '0')
+      const s = date.getSeconds().toString().padStart(2, '0')
+      return `${h}:${m}:${s}`
+    }
+
+    set({
+      raceNumber: race.raceNumber,
+      raceStatus: race.status,
+      startTime: formatHour(runTime),
+      timeRemaining,
+      totalTime,
+      serverError: null,
+      openAt: race.openAt,
+      closeAt: race.closeAt,
+      runAt: race.runAt,
+      finishedAt: race.finishedAt,
+      saleEndAt: race.saleEndAt,
+    })
+  },
 
   selectDog: (row, dog) => {
     const state = get()
@@ -220,17 +272,28 @@ export const usePOSStore = create<POSState>((set, get) => ({
   },
 
   addBet: (bet) => {
+    const state = get()
+    if (state.raceStatus !== 'OPEN') return
     const id = generateId()
     set(state => ({ bets: [...state.bets, { ...bet, id }] }))
   },
 
   addBets: (bets) => {
+    const state = get()
+    if (state.raceStatus !== 'OPEN') return
     const newBets: BetEntry[] = bets.map(b => ({ ...b, id: generateId() }))
     set(state => ({ bets: [...state.bets, ...newBets] }))
   },
 
   addCurrentBet: () => {
     const state = get()
+    if (state.raceStatus !== 'OPEN') {
+      return {
+        ok: false,
+        error: 'Las apuestas para esta carrera están cerradas.',
+      }
+    }
+
     const filled = state.selectedDogs.filter((dog): dog is number => typeof dog === 'number')
 
     if (filled.length === 0 || state.pendingAmount <= 0) {
@@ -289,6 +352,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
   printTicket: () => {
     const state = get()
     if (state.bets.length === 0) return
+    if (state.raceStatus !== 'OPEN') return
 
     const printableTicket = buildPrintableTicket(state.bets, state.recentTickets)
     const finalizePrint = () => {
@@ -333,12 +397,12 @@ export const usePOSStore = create<POSState>((set, get) => ({
     set(state => {
       const newTime = state.timeRemaining > 0 ? state.timeRemaining - 1 : 0
       let newStatus = state.raceStatus
-      if (newTime === 0) newStatus = 'CLOSED'
-      else if (newTime < 60) newStatus = 'RUNNING'
-      else newStatus = 'OPEN'
+      if (newTime === 0 && newStatus === 'OPEN') {
+        newStatus = 'CLOSED'
+      }
       return {
         timeRemaining: newTime,
-        activeTime: formatTime(new Date()),
+        activeTime: formatTime(new Date(getServerTime())),
         raceStatus: newStatus,
       }
     })
@@ -347,6 +411,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
   // PA' TRÁ Y PA' LANTE - requires exactly 2 dogs in row 0 and row 1
   applyPaTraPaLante: () => {
     const state = get()
+    if (state.raceStatus !== 'OPEN') return
     const amount = state.pendingAmount
     if (amount <= 0) return
     const d0 = state.selectedDogs[0]
@@ -366,6 +431,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
   // REVERSE FORECAST - same as pa tra pa lante but labeled differently
   applyReverseForecast: () => {
     const state = get()
+    if (state.raceStatus !== 'OPEN') return
     const amount = state.pendingAmount
     if (amount <= 0) return
     const d0 = state.selectedDogs[0]
@@ -385,6 +451,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
   // RULAY - one dog selected, generates pairs with all others
   applyRulay: () => {
     const state = get()
+    if (state.raceStatus !== 'OPEN') return
     const amount = state.pendingAmount
     if (amount <= 0) return
     const d0 = state.selectedDogs[0]
