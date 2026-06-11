@@ -107,6 +107,7 @@ const DateTimeDisplay: React.FC = () => {
 const POSScreen: React.FC = () => {
   const { tickTime, activeTab, updateRaceFromBackend, setServerError, updateOddsFromBackend, setOddsError } = usePOSStore()
   const activeRaceId = usePOSStore(s => s.activeRaceId)
+  const raceNumber = usePOSStore(s => s.raceNumber)
 
   // Poll current race status every 5 seconds
   const { data: currentRace, error } = useQuery({
@@ -135,12 +136,13 @@ const POSScreen: React.FC = () => {
   // Synchronize store with queried odds
   useEffect(() => {
     if (liveOdds) {
-      updateOddsFromBackend(liveOdds.dogs)
+      updateOddsFromBackend(liveOdds)
       // Print validation logs as required in task 7
-      console.log(`Race ID: ${liveOdds.raceId}\nRace Number: ${liveOdds.raceNumber}\n\n` +
-        liveOdds.dogs.map(d => `Dog ${d.dogNumber}: ${d.win.toFixed(2)}`).join('\n'))
+      const winners = liveOdds.filter(e => e.betType === 'WINNER')
+      console.log(`Race ID: ${activeRaceId}\nRace Number: ${raceNumber}\n\n` +
+        winners.map(e => `Dog ${e.selection}: ${parseFloat(e.currentOdds).toFixed(2)}`).join('\n'))
     }
-  }, [liveOdds, updateOddsFromBackend])
+  }, [liveOdds, updateOddsFromBackend, activeRaceId, raceNumber])
 
   // Propagate API connection error to store
   useEffect(() => {

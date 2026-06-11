@@ -11,27 +11,36 @@ export interface RaceDetail {
   finishedAt: string
 }
 
-export interface DogOdds {
-  dogNumber: number
-  win: number
-  exacta: number
-  trifecta: number
-}
-
-export interface RaceOddsResponse {
-  raceId: string | number
-  raceNumber: number
-  dogs: DogOdds[]
+export interface OddsEntry {
+  id: string
+  raceId: string
+  betType: 'WINNER' | 'EXACTA' | 'TRIFECTA'
+  selection: string
+  totalAmount: string
+  currentOdds: string
+  finalOdds: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export const getCurrentRace = async (): Promise<RaceDetail> => {
-  return apiFetchJson<RaceDetail>('/races/current', { method: 'GET' })
+  const data = await apiFetchJson<any>('/races/current', { method: 'GET' })
+  return {
+    id: data.id,
+    raceNumber: data.numero ?? data.raceNumber,
+    status: data.status,
+    openAt: data.openAt,
+    closeAt: data.closeAt,
+    runAt: data.runAt ?? data.saleEndAt ?? data.closeAt,
+    saleEndAt: data.saleEndAt,
+    finishedAt: data.finishedAt,
+  }
 }
 
 export const getRaceStatus = async (id: string | number): Promise<{ status: RaceDetail['status'] }> => {
   return apiFetchJson<{ status: RaceDetail['status'] }>(`/races/status?id=${id}`, { method: 'GET' })
 }
 
-export const getRaceOddsLive = async (raceId: string | number): Promise<RaceOddsResponse> => {
-  return apiFetchJson<RaceOddsResponse>(`/odds/race/${raceId}/live`, { method: 'GET' })
+export const getRaceOddsLive = async (raceId: string | number): Promise<OddsEntry[]> => {
+  return apiFetchJson<OddsEntry[]>(`/odds/race/${raceId}/live`, { method: 'GET' })
 }

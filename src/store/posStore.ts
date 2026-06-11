@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { getServerTime } from '../services/http'
-import { RaceDetail, DogOdds } from '../services/races'
+import { RaceDetail, OddsEntry } from '../services/races'
 
 export type BetType = 'QUINIELA' | 'EXACTA' | 'TRIFECTA'
 
@@ -54,6 +54,9 @@ export interface POSState {
   saleEndAt: string | null
   activeRaceId: string | number | null
   odds: Record<number, { ganar: string; exacta: string; trifecta: string }> | null
+  winnerOddsMap: Record<string, string> | null
+  exactaOddsMap: Record<string, string> | null
+  trifectaOddsMap: Record<string, string> | null
   oddsError: string | null
 
   // Tab
@@ -88,7 +91,7 @@ export interface POSState {
   tickTime: () => void
   updateRaceFromBackend: (race: RaceDetail) => void
   setServerError: (error: string | null) => void
-  updateOddsFromBackend: (dogs: DogOdds[]) => void
+  updateOddsFromBackend: (entries: OddsEntry[]) => void
   setOddsError: (error: string | null) => void
 
   // Apply special plays
@@ -208,6 +211,9 @@ export const usePOSStore = create<POSState>((set, get) => ({
   saleEndAt: null,
   activeRaceId: null,
   odds: null,
+  winnerOddsMap: null,
+  exactaOddsMap: null,
+  trifectaOddsMap: null,
   oddsError: null,
 
   activeTab: 'JUGADA',
@@ -258,16 +264,62 @@ export const usePOSStore = create<POSState>((set, get) => ({
     })
   },
 
-  updateOddsFromBackend: (dogs) => {
-    const oddsRecord: Record<number, { ganar: string; exacta: string; trifecta: string }> = {}
-    dogs.forEach(d => {
-      oddsRecord[d.dogNumber] = {
-        ganar: d.win.toFixed(2),
-        exacta: d.exacta.toFixed(2),
-        trifecta: d.trifecta.toFixed(2)
+  updateOddsFromBackend: (entries) => {
+    const winnerMap: Record<string, string> = {}
+    const exactaMap: Record<string, string> = {}
+    const trifectaMap: Record<string, string> = {}
+
+    entries.forEach(entry => {
+      const val = parseFloat(entry.currentOdds || '1').toFixed(2)
+      if (entry.betType === 'WINNER') {
+        winnerMap[entry.selection] = val
+      } else if (entry.betType === 'EXACTA') {
+        exactaMap[entry.selection] = val
+      } else if (entry.betType === 'TRIFECTA') {
+        trifectaMap[entry.selection] = val
       }
     })
-    set({ odds: oddsRecord, oddsError: null })
+
+    const oddsRecord: Record<number, { ganar: string; exacta: string; trifecta: string }> = {}
+    const FALLBACK_ODDS: Record<number, { ganar: string; exacta: string; trifecta: string }> = {
+      1: { ganar: '2.60', exacta: '8.50', trifecta: '45.00' },
+      2: { ganar: '3.20', exacta: '9.80', trifecta: '52.00' },
+      3: { ganar: '4.10', exacta: '11.50', trifecta: '61.00' },
+      4: { ganar: '6.60', exacta: '15.00', trifecta: '78.00' },
+      5: { ganar: '7.50', exacta: '18.00', trifecta: '90.00' },
+      6: { ganar: '9.90', exacta: '22.00', trifecta: '120.00' },
+    }
+
+    for (let dogNum = 1; dogNum <= 6; dogNum++) {
+      const selectionStr = String(dogNum)
+      const winOdd = winnerMap[selectionStr] ?? FALLBACK_ODDS[dogNum].ganar
+
+      // Find all exacta selections starting with "dogNum-"
+      const exactasForDog = entries.filter(e => e.betType === 'EXACTA' && e.selection.startsWith(`${dogNum}-`))
+      const avgExacta = exactasForDog.length > 0
+        ? exactasForDog.reduce((sum, e) => sum + parseFloat(e.currentOdds || '0'), 0) / exactasForDog.length
+        : parseFloat(FALLBACK_ODDS[dogNum].exacta)
+
+      // Find all trifecta selections starting with "dogNum-"
+      const trifectasForDog = entries.filter(e => e.betType === 'TRIFECTA' && e.selection.startsWith(`${dogNum}-`))
+      const avgTrifecta = trifectasForDog.length > 0
+        ? trifectasForDog.reduce((sum, e) => sum + parseFloat(e.currentOdds || '0'), 0) / trifectasForDog.length
+        : parseFloat(FALLBACK_ODDS[dogNum].trifecta)
+
+      oddsRecord[dogNum] = {
+        ganar: winOdd,
+        exacta: avgExacta.toFixed(2),
+        trifecta: avgTrifecta.toFixed(2)
+      }
+    }
+
+    set({
+      odds: oddsRecord,
+      winnerOddsMap: winnerMap,
+      exactaOddsMap: exactaMap,
+      trifectaOddsMap: trifectaMap,
+      oddsError: null
+    })
   },
 
   setOddsError: (error) => set({ oddsError: error }),

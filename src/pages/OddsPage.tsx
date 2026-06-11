@@ -76,47 +76,60 @@ const buildMockDogOdds = (): DogOddsRow[] => ([
   { dog: 6, name: DOG_NAMES[6], win: 9.9, place: 4.25, exacta: 22, trifecta: 120 },
 ])
 
-const buildExactaMatrix = (rows: DogOddsRow[]) => {
-  const baseByDog = new Map<number, DogOddsRow>()
-  rows.forEach(r => baseByDog.set(r.dog, r))
-  const dogs: DogColorKey[] = [1, 2, 3, 4, 5, 6]
+const buildExactaMatrix = (exactaOddsMap: Record<string, string> | null) => {
+  const dogs = [1, 2, 3, 4, 5, 6]
+  if (!exactaOddsMap) {
+    const winOdds = [2.6, 3.2, 4.1, 6.6, 7.5, 9.9]
+    return dogs.map((from, i) => {
+      return dogs.map((to, j) => {
+        if (from === to) return null
+        const a = winOdds[i]
+        const b = winOdds[j]
+        const val = Math.max(2.0, (a + b) * 1.35)
+        return Number(val.toFixed(2))
+      })
+    })
+  }
 
   return dogs.map(from => {
     return dogs.map(to => {
       if (from === to) return null
-      const a = baseByDog.get(from)?.win ?? 5
-      const b = baseByDog.get(to)?.win ?? 5
-      const factor = 1.35
-      const val = Math.max(2.0, (a + b) * factor)
-      return Number(val.toFixed(2))
+      const key = `${from}-${to}`
+      const val = exactaOddsMap[key]
+      return val ? Number(val) : 5.00
     })
   })
 }
 
-const buildTopTrifectas = (rows: DogOddsRow[]): TrifectaOddsRow[] => {
-  const dogs: DogColorKey[] = [1, 2, 3, 4, 5, 6]
-  const winByDog = new Map<number, number>()
-  rows.forEach(r => winByDog.set(r.dog, r.win))
-
-  const combos: TrifectaOddsRow[] = []
-  for (let i = 0; i < dogs.length; i++) {
-    for (let j = 0; j < dogs.length; j++) {
-      for (let k = 0; k < dogs.length; k++) {
-        if (i === j || i === k || j === k) continue
-        const a = winByDog.get(dogs[i]) ?? 5
-        const b = winByDog.get(dogs[j]) ?? 5
-        const c = winByDog.get(dogs[k]) ?? 5
-        const val = Math.max(10, (a + b + c) * 6.5)
-        combos.push({ combo: `${dogs[i]}-${dogs[j]}-${dogs[k]}`, odds: Number(val.toFixed(2)) })
+const buildTopTrifectas = (trifectaOddsMap: Record<string, string> | null): TrifectaOddsRow[] => {
+  if (!trifectaOddsMap) {
+    const dogs = [1, 2, 3, 4, 5, 6]
+    const winOdds = [2.6, 3.2, 4.1, 6.6, 7.5, 9.9]
+    const combos: TrifectaOddsRow[] = []
+    for (let i = 0; i < dogs.length; i++) {
+      for (let j = 0; j < dogs.length; j++) {
+        for (let k = 0; k < dogs.length; k++) {
+          if (i === j || i === k || j === k) continue
+          const a = winOdds[i]
+          const b = winOdds[j]
+          const c = winOdds[k]
+          const val = Math.max(10, (a + b + c) * 6.5)
+          combos.push({ combo: `${dogs[i]}-${dogs[j]}-${dogs[k]}`, odds: Number(val.toFixed(2)) })
+        }
       }
     }
+    return combos.sort((x, y) => x.odds - y.odds).slice(0, 18)
   }
 
+  const combos: TrifectaOddsRow[] = Object.entries(trifectaOddsMap).map(([combo, val]) => ({
+    combo,
+    odds: parseFloat(val)
+  }))
   return combos.sort((x, y) => x.odds - y.odds).slice(0, 18)
 }
 
 const OddsPage: React.FC = () => {
-  const { raceNumber, raceStatus, timeRemaining, odds, oddsError } = usePOSStore()
+  const { raceNumber, raceStatus, timeRemaining, odds, exactaOddsMap, trifectaOddsMap, oddsError } = usePOSStore()
 
   const rows = useMemo<DogOddsRow[]>(() => {
     if (!odds) {
@@ -137,8 +150,8 @@ const OddsPage: React.FC = () => {
     })
   }, [odds])
 
-  const matrix = useMemo(() => buildExactaMatrix(rows), [rows])
-  const trifectas = useMemo(() => buildTopTrifectas(rows), [rows])
+  const matrix = useMemo(() => buildExactaMatrix(exactaOddsMap), [exactaOddsMap])
+  const trifectas = useMemo(() => buildTopTrifectas(trifectaOddsMap), [trifectaOddsMap])
   const rootRef = useRef<HTMLDivElement | null>(null)
 
   const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0')

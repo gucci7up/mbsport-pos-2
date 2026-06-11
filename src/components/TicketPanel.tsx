@@ -2,7 +2,7 @@ import React from 'react'
 import { getBetDraftFromSelection, usePOSStore } from '../store/posStore'
 
 export const TicketPanel: React.FC = () => {
-  const { bets, removeBet, selectedDogs, pendingAmount } = usePOSStore()
+  const { bets, removeBet, selectedDogs, pendingAmount, winnerOddsMap, exactaOddsMap, trifectaOddsMap } = usePOSStore()
   const total = bets.reduce((sum, b) => sum + b.amount, 0)
   const hasSelection = selectedDogs.some(dog => dog !== null)
   const draft = getBetDraftFromSelection(selectedDogs, pendingAmount)
@@ -122,7 +122,35 @@ export const TicketPanel: React.FC = () => {
           </div>
         ) : (
           bets.map((bet, index) => {
-            const est = typeof bet.estimatedPayout === 'number' ? bet.estimatedPayout : null
+            let multiplier = 0
+            if (bet.type === 'QUINIELA') {
+              multiplier = parseFloat(winnerOddsMap?.[bet.selection] ?? '0')
+              if (multiplier <= 0) {
+                const dogNum = parseInt(bet.selection)
+                const FALLBACK_ODDS: Record<number, string> = { 1: '2.60', 2: '3.20', 3: '4.10', 4: '6.60', 5: '7.50', 6: '9.90' }
+                multiplier = parseFloat(FALLBACK_ODDS[dogNum] ?? '1.00')
+              }
+            } else if (bet.type === 'EXACTA') {
+              multiplier = parseFloat(exactaOddsMap?.[bet.selection] ?? '0')
+              if (multiplier <= 0) {
+                const parts = bet.selection.split('-').map(x => parseInt(x))
+                const winOdds: Record<number, number> = { 1: 2.6, 2: 3.2, 3: 4.1, 4: 6.6, 5: 7.5, 6: 9.9 }
+                const a = winOdds[parts[0]] ?? 5
+                const b = winOdds[parts[1]] ?? 5
+                multiplier = Math.max(2.0, (a + b) * 1.35)
+              }
+            } else if (bet.type === 'TRIFECTA') {
+              multiplier = parseFloat(trifectaOddsMap?.[bet.selection] ?? '0')
+              if (multiplier <= 0) {
+                const parts = bet.selection.split('-').map(x => parseInt(x))
+                const winOdds: Record<number, number> = { 1: 2.6, 2: 3.2, 3: 4.1, 4: 6.6, 5: 7.5, 6: 9.9 }
+                const a = winOdds[parts[0]] ?? 5
+                const b = winOdds[parts[1]] ?? 5
+                const c = winOdds[parts[2]] ?? 5
+                multiplier = Math.max(10.0, (a + b + c) * 6.5)
+              }
+            }
+            const est = bet.amount * multiplier
 
             return (
               <div
