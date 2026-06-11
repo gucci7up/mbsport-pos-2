@@ -37,7 +37,7 @@ const DOG_COLOR_LABELS: Record<number, string> = {
   6: 'BLANCO / NEGRO',
 }
 
-const DOG_ODDS: Record<number, { ganar: string; exacta: string; trifecta: string }> = {
+const FALLBACK_ODDS: Record<number, { ganar: string; exacta: string; trifecta: string }> = {
   1: { ganar: '2.60', exacta: '8.50', trifecta: '45.00' },
   2: { ganar: '3.20', exacta: '9.80', trifecta: '52.00' },
   3: { ganar: '4.10', exacta: '11.50', trifecta: '61.00' },
@@ -68,7 +68,7 @@ const DogButton: React.FC<DogButtonProps> = ({ dog, row, selectedDogs, onSelect 
   const bg = DOG_COLORS[dog]
   const textColor = DOG_TEXT_COLORS[dog]
   const isStripes = bg === 'stripes'
-  const odds = DOG_ODDS[dog]
+  const odds = usePOSStore(s => s.odds?.[dog] ?? FALLBACK_ODDS[dog])
   const colorLabel = DOG_COLOR_LABELS[dog]
   const dogName = DOG_NAMES[dog]
   const cardHeight = 'clamp(142px, 13.2vh, 144px)'
@@ -252,6 +252,7 @@ const DogButton: React.FC<DogButtonProps> = ({ dog, row, selectedDogs, onSelect 
 export const DogSelectionGrid: React.FC = () => {
   const selectedDogs = usePOSStore(s => s.selectedDogs)
   const selectDog = usePOSStore(s => s.selectDog)
+  const oddsError = usePOSStore(s => s.oddsError)
 
   const ROWS = [
     { label: '1°', sublabel: 'LUGAR', row: 0 },
@@ -260,7 +261,27 @@ export const DogSelectionGrid: React.FC = () => {
   ]
 
   return (
-    <div className="flex flex-col gap-2" style={{ minHeight: 0 }}>
+    <div className="flex flex-col gap-2" style={{ minHeight: 0, position: 'relative' }}>
+      {oddsError && (
+        <div 
+          className="flex items-center gap-1.5 px-3 py-1 rounded" 
+          style={{ 
+            position: 'absolute', 
+            top: '-26px', 
+            right: '10px', 
+            background: 'rgba(127,29,29,0.3)', 
+            border: '1px solid rgba(239,68,68,0.3)', 
+            color: '#f87171', 
+            fontSize: '0.75rem', 
+            fontFamily: "'Barlow Condensed', sans-serif", 
+            fontWeight: 700, 
+            letterSpacing: '0.05em',
+            zIndex: 10
+          }}
+        >
+          ⚠️ CUOTAS NO DISPONIBLES
+        </div>
+      )}
       {ROWS.map(({ label, sublabel, row }) => (
         <div key={row} className="flex items-stretch gap-3">
           <div

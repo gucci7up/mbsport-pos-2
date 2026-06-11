@@ -116,8 +116,27 @@ const buildTopTrifectas = (rows: DogOddsRow[]): TrifectaOddsRow[] => {
 }
 
 const OddsPage: React.FC = () => {
-  const { raceNumber, raceStatus, timeRemaining } = usePOSStore()
-  const rows = useMemo(() => buildMockDogOdds(), [])
+  const { raceNumber, raceStatus, timeRemaining, odds, oddsError } = usePOSStore()
+
+  const rows = useMemo<DogOddsRow[]>(() => {
+    if (!odds) {
+      return buildMockDogOdds()
+    }
+    return [1, 2, 3, 4, 5, 6].map(dogNum => {
+      const dogKey = dogNum as DogColorKey
+      const val = odds[dogKey] ?? { ganar: '2.00', exacta: '5.00', trifecta: '10.00' }
+      const winVal = Number.parseFloat(val.ganar)
+      return {
+        dog: dogKey,
+        name: DOG_NAMES[dogKey],
+        win: winVal,
+        place: Number((winVal * 0.6).toFixed(2)),
+        exacta: Number.parseFloat(val.exacta),
+        trifecta: Number.parseFloat(val.trifecta)
+      }
+    })
+  }, [odds])
+
   const matrix = useMemo(() => buildExactaMatrix(rows), [rows])
   const trifectas = useMemo(() => buildTopTrifectas(rows), [rows])
   const rootRef = useRef<HTMLDivElement | null>(null)
@@ -179,6 +198,12 @@ const OddsPage: React.FC = () => {
             {minutes}:{seconds}
           </span>
         </div>
+        {oddsError && (
+          <div className="odds-top-item">
+            <span className="odds-top-label" style={{ color: '#ef4444' }}>ALERTA</span>
+            <span className="odds-top-value" style={{ color: '#ef4444', animation: 'pulse 1.5s infinite' }}>⚠️ CUOTAS NO DISPONIBLES</span>
+          </div>
+        )}
       </div>
 
       <div className="odds-main-grid">

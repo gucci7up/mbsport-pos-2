@@ -17,7 +17,7 @@ import SalesPage from './pages/SalesPage'
 import SettingsPage from './pages/SettingsPage'
 import { getBetDraftFromSelection, usePOSStore } from './store/posStore'
 import { isAuthenticated } from './services/auth'
-import { getCurrentRace } from './services/races'
+import { getCurrentRace, getRaceOddsLive } from './services/races'
 
 const PendingAmountDisplay: React.FC = () => {
   const pendingAmount = usePOSStore(s => s.pendingAmount)
@@ -105,13 +105,23 @@ const DateTimeDisplay: React.FC = () => {
 }
 
 const POSScreen: React.FC = () => {
-  const { tickTime, activeTab, updateRaceFromBackend, setServerError } = usePOSStore()
+  const { tickTime, activeTab, updateRaceFromBackend, setServerError, updateOddsFromBackend, setOddsError } = usePOSStore()
+  const activeRaceId = usePOSStore(s => s.activeRaceId)
 
   // Poll current race status every 5 seconds
   const { data: currentRace, error } = useQuery({
     queryKey: ['currentRace'],
     queryFn: getCurrentRace,
     refetchInterval: 5000,
+    retry: true,
+  })
+
+  // Poll live odds every 5 seconds
+  const { data: liveOdds, error: oddsError } = useQuery({
+    queryKey: ['liveOdds', activeRaceId],
+    queryFn: () => getRaceOddsLive(activeRaceId!),
+    refetchInterval: 5000,
+    enabled: Boolean(activeRaceId),
     retry: true,
   })
 
@@ -122,12 +132,29 @@ const POSScreen: React.FC = () => {
     }
   }, [currentRace, updateRaceFromBackend])
 
+  // Synchronize store with queried odds
+  useEffect(() => {
+    if (liveOdds) {
+      updateOddsFromBackend(liveOdds.dogs)
+      // Print validation logs as required in task 7
+      console.log(`Race ID: ${liveOdds.raceId}\nRace Number: ${liveOdds.raceNumber}\n\n` +
+        liveOdds.dogs.map(d => `Dog ${d.dogNumber}: ${d.win.toFixed(2)}`).join('\n'))
+    }
+  }, [liveOdds, updateOddsFromBackend])
+
   // Propagate API connection error to store
   useEffect(() => {
     if (error) {
       setServerError('Sin conexión con servidor')
     }
   }, [error, setServerError])
+
+  // Propagate live odds error to store
+  useEffect(() => {
+    if (oddsError) {
+      setOddsError('Cuotas no disponibles')
+    }
+  }, [oddsError, setOddsError])
 
   // Race countdown timer (local tick)
   useEffect(() => {

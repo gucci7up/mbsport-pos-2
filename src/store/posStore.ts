@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { getServerTime } from '../services/http'
-import { RaceDetail } from '../services/races'
+import { RaceDetail, DogOdds } from '../services/races'
 
 export type BetType = 'QUINIELA' | 'EXACTA' | 'TRIFECTA'
 
@@ -52,6 +52,9 @@ export interface POSState {
   runAt: string | null
   finishedAt: string | null
   saleEndAt: string | null
+  activeRaceId: string | number | null
+  odds: Record<number, { ganar: string; exacta: string; trifecta: string }> | null
+  oddsError: string | null
 
   // Tab
   activeTab: 'JUGADA' | 'RESULTADOS' | 'CUOTAS' | 'VENTAS' | 'CAJA'
@@ -85,6 +88,8 @@ export interface POSState {
   tickTime: () => void
   updateRaceFromBackend: (race: RaceDetail) => void
   setServerError: (error: string | null) => void
+  updateOddsFromBackend: (dogs: DogOdds[]) => void
+  setOddsError: (error: string | null) => void
 
   // Apply special plays
   applyPaTraPaLante: () => void
@@ -201,6 +206,9 @@ export const usePOSStore = create<POSState>((set, get) => ({
   runAt: null,
   finishedAt: null,
   saleEndAt: null,
+  activeRaceId: null,
+  odds: null,
+  oddsError: null,
 
   activeTab: 'JUGADA',
 
@@ -235,6 +243,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
     }
 
     set({
+      activeRaceId: race.id,
       raceNumber: race.raceNumber,
       raceStatus: race.status,
       startTime: formatHour(runTime),
@@ -248,6 +257,20 @@ export const usePOSStore = create<POSState>((set, get) => ({
       saleEndAt: race.saleEndAt,
     })
   },
+
+  updateOddsFromBackend: (dogs) => {
+    const oddsRecord: Record<number, { ganar: string; exacta: string; trifecta: string }> = {}
+    dogs.forEach(d => {
+      oddsRecord[d.dogNumber] = {
+        ganar: d.win.toFixed(2),
+        exacta: d.exacta.toFixed(2),
+        trifecta: d.trifecta.toFixed(2)
+      }
+    })
+    set({ odds: oddsRecord, oddsError: null })
+  },
+
+  setOddsError: (error) => set({ oddsError: error }),
 
   selectDog: (row, dog) => {
     const state = get()
