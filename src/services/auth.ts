@@ -2,21 +2,23 @@ import { apiFetchJson } from './http'
 import { ApiError } from './http'
 
 export type AuthLoginPayload = {
-  agency?: string
-  username: string
+  email: string
   password: string
   rememberMe: boolean
 }
 
 export type UserProfile = {
-  id: string | number
+  id: string
   username: string
+  email: string
   role: string
-  agency: string
+  agencyId: string | null
+  agency?: string | null
 }
 
 export type AuthLoginResponse = {
-  token: string
+  token: string // Backward compatibility with http.ts
+  accessToken: string
   user: UserProfile
 }
 
@@ -72,17 +74,20 @@ export const clearAuthSession = () => {
 export const isAuthenticated = () => Boolean(getAuthSession()?.token)
 
 export const authLogin = async (payload: AuthLoginPayload): Promise<AuthLoginResponse> => {
-  const normalizedUsername = payload.username.trim()
+  const normalizedEmail = payload.email.trim()
   const normalizedPassword = payload.password.trim()
 
-  if (DEMO_ENABLED && normalizedUsername === DEMO_USERNAME && normalizedPassword === DEMO_PASSWORD) {
+  if (DEMO_ENABLED && (normalizedEmail === DEMO_USERNAME || normalizedEmail === 'admin@mbracesrd.lat') && normalizedPassword === DEMO_PASSWORD) {
     const demoResponse: AuthLoginResponse = {
       token: `demo-token-${Date.now()}`,
+      accessToken: `demo-token-${Date.now()}`,
       user: {
         id: 'demo-id',
         username: DEMO_USERNAME,
+        email: 'admin@mbracesrd.lat',
         role: 'admin',
-        agency: payload.agency ?? 'AGENCIA DEMO',
+        agencyId: 'AGENCIA DEMO',
+        agency: 'AGENCIA DEMO',
       },
     }
 
@@ -95,19 +100,19 @@ export const authLogin = async (payload: AuthLoginPayload): Promise<AuthLoginRes
     return demoResponse
   }
 
-  if (!normalizedUsername || !normalizedPassword) {
-    throw new ApiError('invalid', 'Usuario o contraseña incorrectos.')
+  if (!normalizedEmail || !normalizedPassword) {
+    throw new ApiError('invalid', 'Email o contraseña incorrectos.')
   }
 
-  const loginResponse = await apiFetchJson<{ access_token: string }>('/auth/login', {
+  const loginResponse = await apiFetchJson<{ accessToken: string; user: any }>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      username: normalizedUsername,
+      email: normalizedEmail,
       password: normalizedPassword,
     }),
   })
 
-  const token = loginResponse.access_token
+  const token = loginResponse.accessToken
 
   const userProfile = await apiFetchJson<UserProfile>('/users/me', {
     method: 'GET',
@@ -118,6 +123,7 @@ export const authLogin = async (payload: AuthLoginPayload): Promise<AuthLoginRes
 
   const response: AuthLoginResponse = {
     token,
+    accessToken: token,
     user: userProfile,
   }
 

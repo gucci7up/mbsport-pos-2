@@ -1,6 +1,7 @@
 import React from 'react'
 import { usePOSStore } from '../store/posStore'
 import BrandLogo from './BrandLogo'
+import { getAuthSession } from '../services/auth'
 
 const RaceInfoBar: React.FC = () => {
   const { raceNumber, raceStatus, startTime, activeTime, timeRemaining, totalTime, serverError } = usePOSStore()
@@ -117,6 +118,7 @@ const RaceInfoBar: React.FC = () => {
 
 const Header: React.FC = () => {
   const { activeTab, setActiveTab } = usePOSStore()
+  const session = getAuthSession()
 
   const NAV_TABS = ['JUGADA', 'RESULTADOS', 'CUOTAS', 'VENTAS', 'CAJA'] as const
 
@@ -166,9 +168,9 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
               <span style={{ color: '#f5c518', fontSize: '0.75rem', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, letterSpacing: '0.1em' }}>
-                AGENCIA DEMO
+                {session?.user?.agencyId ? `AGENCIA ${session.user.agencyId}` : 'AGENCIA CENTRAL'}
               </span>
-              <span style={{ color: '#aaa', fontSize: '0.7rem', fontFamily: "'Roboto Mono', monospace" }}>admin</span>
+              <span style={{ color: '#aaa', fontSize: '0.7rem', fontFamily: "'Roboto Mono', monospace" }}>{session?.user?.username ?? 'admin'}</span>
               <span style={{ color: '#22c55e', fontSize: '0.65rem', fontFamily: "'Inter', sans-serif" }}>● En línea</span>
             </div>
             <div

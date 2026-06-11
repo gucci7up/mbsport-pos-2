@@ -15,12 +15,12 @@ const LOGIN_AGENCIES: string[] = [] // Deshabilitado para la integración real
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const runtime = getRuntimeConfig()
-  const usernameInputRef = useRef<HTMLInputElement | null>(null)
+  const emailInputRef = useRef<HTMLInputElement | null>(null)
   const passwordInputRef = useRef<HTMLInputElement | null>(null)
   const agencyDropdownRef = useRef<HTMLDivElement | null>(null)
   const [agency, setAgency] = useState('AG. CENTRAL')
   const [agencyMenuOpen, setAgencyMenuOpen] = useState(false)
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(true)
   const [overlayVisible, setOverlayVisible] = useState(false)
@@ -42,7 +42,7 @@ const LoginPage: React.FC = () => {
   const isSubmitting = overlayVisible || loginMutation.isPending
 
   useEffect(() => {
-    usernameInputRef.current?.focus()
+    emailInputRef.current?.focus()
   }, [])
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
   const handleAgencySelect = (selectedAgency: string) => {
     setAgency(selectedAgency)
     setAgencyMenuOpen(false)
-    usernameInputRef.current?.focus()
+    emailInputRef.current?.focus()
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -82,8 +82,7 @@ const LoginPage: React.FC = () => {
       setOverlayMessage('Cargando terminal...')
 
       await loginMutation.mutateAsync({
-        agency,
-        username,
+        email,
         password,
         rememberMe,
       })
@@ -268,12 +267,12 @@ const LoginPage: React.FC = () => {
             </label>
 
             <label className="block">
-              <span className="login-field-label">Usuario</span>
+              <span className="login-field-label">Email</span>
               <input
-                ref={usernameInputRef}
+                ref={emailInputRef}
                 className="login-input"
-                value={username}
-                onChange={event => setUsername(event.target.value)}
+                value={email}
+                onChange={event => setEmail(event.target.value)}
                 onFocus={requestTouchKeyboard}
                 onKeyDown={event => {
                   if (event.key === 'Enter') {
@@ -281,8 +280,8 @@ const LoginPage: React.FC = () => {
                     passwordInputRef.current?.focus()
                   }
                 }}
-                placeholder="Ingresa tu usuario"
-                autoComplete="username"
+                placeholder="Ingresa tu email"
+                autoComplete="email"
                 disabled={isSubmitting}
                 required
               />
