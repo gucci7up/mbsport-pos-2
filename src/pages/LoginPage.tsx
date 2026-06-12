@@ -6,6 +6,8 @@ import { getRuntimeConfig } from '../config/runtime'
 import { authLogin } from '../services/auth'
 import { getHealth } from '../services/health'
 import { ApiError } from '../services/http'
+import { TicketPrint } from '../components/TicketPrint'
+import { usePOSStore } from '../store/posStore'
 
 const delay = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms))
 const POS_VERSION = '2.51.04'
@@ -46,6 +48,26 @@ const LoginPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
+    usePOSStore.setState({
+      printableTicket: {
+        id: 12345,
+        uuid: "abc-123-xyz",
+        date: "12/06/2026",
+        time: "15:30:00",
+        agencyName: "MBSPORT PRINCIPAL",
+        userName: "Cajero de Prueba",
+        raceNumber: 397,
+        total: 150.00,
+        publicToken: "MS-9988-7766",
+        bets: [
+          { selection: "1-2", type: "EXACTA", amount: 100.00, odds: 5.4, potentialPrize: 540.00 },
+          { selection: "4", type: "QUINIELA", amount: 50.00, odds: 2.1, potentialPrize: 105.00 }
+        ]
+      }
+    })
+  }, [])
+
+  useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
       if (!agencyDropdownRef.current?.contains(event.target as Node)) {
         setAgencyMenuOpen(false)
@@ -60,7 +82,7 @@ const LoginPage: React.FC = () => {
   }, [])
 
   const requestTouchKeyboard = () => {
-    window.dispatchEvent(new CustomEvent('mbraces:showKeyboard'))
+    window.dispatchEvent(new CustomEvent('mbsport:showKeyboard'))
   }
 
   const handleAgencySelect = (selectedAgency: string) => {
@@ -366,7 +388,7 @@ const LoginPage: React.FC = () => {
 
         <footer className="mt-4 text-center">
           <div style={{ color: '#666', fontSize: '0.76rem', fontFamily: "'Roboto Mono', monospace" }}>
-            © MBRACES Racing Dogs
+            © MBSPORT Racing Dogs
           </div>
           <div style={{ color: '#666', fontSize: '0.76rem', fontFamily: "'Roboto Mono', monospace", marginTop: '2px' }}>
             Versión POS {POS_VERSION}
@@ -387,6 +409,19 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Temporary visual verification of printable ticket branding */}
+      <div className="test-ticket-preview-container" style={{ margin: '30px auto', display: 'flex', justifyContent: 'center' }}>
+        <style>{`
+          .print-only {
+            display: block !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            border: 1px solid #ddd;
+          }
+        `}</style>
+        <TicketPrint />
+      </div>
     </div>
   )
 }

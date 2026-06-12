@@ -1,4 +1,4 @@
-export type MBRacesSettings = {
+export type MBSportSettings = {
   apiUrl: string
   wsUrl: string
   websocketUrl: string
@@ -14,19 +14,19 @@ export type MBRacesSettings = {
   sessionTimeout: number
 }
 
-const STORAGE_KEY = 'mbraces_settings'
+const STORAGE_KEY = 'mbsport_settings'
 
-export const loadSettings = (): Partial<MBRacesSettings> => {
+export const loadSettings = (): Partial<MBSportSettings> => {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return {}
-    const parsed = JSON.parse(raw) as Partial<MBRacesSettings>
+    const parsed = JSON.parse(raw) as Partial<MBSportSettings>
     return parsed ?? {}
   } catch {
     return {}
   }
 }
 
-export const saveSettings = (settings: MBRacesSettings) => {
+export const saveSettings = (settings: MBSportSettings) => {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
 }

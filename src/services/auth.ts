@@ -27,7 +27,7 @@ export type AuthSession = AuthLoginResponse & {
   isDemo: boolean
 }
 
-const AUTH_STORAGE_KEY = 'mbraces_auth_session'
+const AUTH_STORAGE_KEY = 'mbsport_auth_session'
 const DEMO_ENABLED = import.meta.env.VITE_ENABLE_DEMO === 'true'
 const DEMO_USERNAME = 'admin'
 const DEMO_PASSWORD = 'admin123'
@@ -77,14 +77,14 @@ export const authLogin = async (payload: AuthLoginPayload): Promise<AuthLoginRes
   const normalizedEmail = payload.email.trim()
   const normalizedPassword = payload.password.trim()
 
-  if (DEMO_ENABLED && (normalizedEmail === DEMO_USERNAME || normalizedEmail === 'admin@mbracesrd.lat') && normalizedPassword === DEMO_PASSWORD) {
+  if (DEMO_ENABLED && (normalizedEmail === DEMO_USERNAME || normalizedEmail === 'admin@mbsportrd.lat') && normalizedPassword === DEMO_PASSWORD) {
     const demoResponse: AuthLoginResponse = {
       token: `demo-token-${Date.now()}`,
       accessToken: `demo-token-${Date.now()}`,
       user: {
         id: 'demo-id',
         username: DEMO_USERNAME,
-        email: 'admin@mbracesrd.lat',
+        email: 'admin@mbsportrd.lat',
         role: 'admin',
         agencyId: 'AGENCIA DEMO',
         agency: 'AGENCIA DEMO',

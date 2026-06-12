@@ -79,7 +79,7 @@ const TickerBar: React.FC = () => {
             display: 'inline-block',
           }}
         >
-          BIENVENIDO A MBRACES - SISTEMA PROFESIONAL DE APUESTAS &nbsp;&nbsp;&nbsp; ★ &nbsp;&nbsp;&nbsp; RECUERDE APOSTAR RESPONSABLEMENTE &nbsp;&nbsp;&nbsp; ★ &nbsp;&nbsp;&nbsp; CARRERA 397 EN CURSO &nbsp;&nbsp;&nbsp; ★ &nbsp;&nbsp;&nbsp; MBRACES RACING DOGS
+          BIENVENIDO A MBSPORT - SISTEMA PROFESIONAL DE APUESTAS &nbsp;&nbsp;&nbsp; ★ &nbsp;&nbsp;&nbsp; RECUERDE APOSTAR RESPONSABLEMENTE &nbsp;&nbsp;&nbsp; ★ &nbsp;&nbsp;&nbsp; CARRERA 397 EN CURSO &nbsp;&nbsp;&nbsp; ★ &nbsp;&nbsp;&nbsp; MBSPORT RACING DOGS
         </span>
       </div>
       {/* Date/time */}

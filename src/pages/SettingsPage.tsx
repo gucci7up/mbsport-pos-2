@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
 import { getRuntimeConfig } from '../config/runtime'
-import { loadSettings, saveSettings, type MBRacesSettings } from '../config/settings'
+import { loadSettings, saveSettings, type MBSportSettings } from '../config/settings'
 
 const SYSTEM_VERSION = 'v2.51.04'
 const REQUEST_TIMEOUT_MS = 4000
@@ -10,7 +10,7 @@ const REQUEST_TIMEOUT_MS = 4000
 type MessageTone = 'neutral' | 'success' | 'warning' | 'error'
 type ApiDiagnosticState = 'checking' | 'online' | 'offline'
 
-const getInitialSettings = (): MBRacesSettings => {
+const getInitialSettings = (): MBSportSettings => {
   const runtime = getRuntimeConfig()
   const stored = loadSettings()
 
@@ -31,7 +31,7 @@ const getInitialSettings = (): MBRacesSettings => {
   }
 }
 
-const normalizeSettings = (settings: MBRacesSettings): MBRacesSettings => ({
+const normalizeSettings = (settings: MBSportSettings): MBSportSettings => ({
   ...settings,
   apiUrl: settings.apiUrl.trim(),
   wsUrl: settings.websocketUrl.trim(),
@@ -75,14 +75,14 @@ const SettingsPage: React.FC = () => {
   const navigate = useNavigate()
   const initialSettings = useMemo(() => getInitialSettings(), [])
 
-  const [settings, setSettings] = useState<MBRacesSettings>(initialSettings)
+  const [settings, setSettings] = useState<MBSportSettings>(initialSettings)
   const [message, setMessage] = useState('Configuración lista para administradores.')
   const [messageTone, setMessageTone] = useState<MessageTone>('neutral')
   const [apiDiagnostic, setApiDiagnostic] = useState<ApiDiagnosticState>('checking')
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [showPrintModal, setShowPrintModal] = useState(false)
 
-  const setField = <K extends keyof MBRacesSettings>(field: K, value: MBRacesSettings[K]) => {
+  const setField = <K extends keyof MBSportSettings>(field: K, value: MBSportSettings[K]) => {
     setSettings(current => {
       const next = { ...current, [field]: value }
       if (field === 'websocketUrl') {
@@ -190,7 +190,7 @@ const SettingsPage: React.FC = () => {
         <body>
           <div class="ticket">
 ==================
-MBRACES
+MBSPORT
 RACING DOGS
 ==================
 
@@ -327,7 +327,7 @@ TEST OK
                   className="login-input"
                   value={settings.apiUrl}
                   onChange={event => setField('apiUrl', event.target.value)}
-                  placeholder="https://api.mbracesrd.lat"
+                  placeholder="https://api.mbsport.lat"
                 />
               </label>
 
@@ -337,7 +337,7 @@ TEST OK
                   className="login-input"
                   value={settings.websocketUrl}
                   onChange={event => setField('websocketUrl', event.target.value)}
-                  placeholder="wss://socket.mbracesrd.lat"
+                  placeholder="wss://socket.mbsport.lat"
                 />
               </label>
 
