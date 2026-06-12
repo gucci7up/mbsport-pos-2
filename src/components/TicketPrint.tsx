@@ -8,6 +8,11 @@ export const TicketPrint: React.FC = () => {
     return <div className="print-only" />
   }
 
+  console.log(
+    '[PRINTABLE TICKET]',
+    JSON.stringify(printableTicket, null, 2)
+  );
+
   // Validaciones de datos
   const hasRequiredFields =
     printableTicket.id !== undefined &&

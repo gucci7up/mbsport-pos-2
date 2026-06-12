@@ -522,10 +522,19 @@ export const usePOSStore = create<POSState>((set, get) => ({
         potentialPrize: parseFloat(d.potentialPrize)
       })),
       total: parseFloat(response.totalAmount),
-      agencyName: (response.user as any).agency ?? session.user.agency ?? session.user.agencyId ?? 'AGENCIA',
+      agencyName: (() => {
+        const rawAgency = (response.user as any).agency ?? session?.user?.agency
+        const nameVal = rawAgency
+          ? (typeof rawAgency === 'string' ? rawAgency : (rawAgency.name ?? 'AGENCIA'))
+          : (session?.user?.agencyId ?? 'AGENCIA')
+        return typeof nameVal === 'string' ? nameVal : String(nameVal)
+      })(),
       userName: response.user.username,
       raceNumber: response.race.numero
     }
+
+    console.log('[PRINTABLE TICKET]', printableTicket)
+    console.log('[AGENCY TYPE]', typeof printableTicket.agencyName, printableTicket.agencyName)
 
     // 7. Map to RecentTicket
     const newRecent: RecentTicket = {
