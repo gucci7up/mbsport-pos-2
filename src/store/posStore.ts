@@ -528,6 +528,14 @@ export const usePOSStore = create<POSState>((set, get) => ({
     console.log(`Ticket Number: ${response.ticketNumber}`)
     console.log('-----------------------------------------')
 
+    // [TICKET PRINT - BEFORE PRINT]
+    console.log('--- [TICKET PRINT] BEFORE PRINT ---')
+    console.log(`ticketId: ${response.id}`)
+    console.log(`ticketNumber: ${response.ticketNumber}`)
+    console.log(`total: ${response.totalAmount}`)
+    console.log(`bets:`, JSON.stringify(printableTicket.bets, null, 2))
+    console.log('-----------------------------------')
+
     // 9. Setup print and state update
     const finalizePrint = () => {
       set(state => ({
@@ -551,6 +559,13 @@ export const usePOSStore = create<POSState>((set, get) => ({
       if (finalized) return
       finalized = true
       window.removeEventListener('afterprint', handleAfterPrint)
+      
+      // [TICKET PRINT - AFTER PRINT]
+      console.log('--- [TICKET PRINT] AFTER PRINT ---')
+      console.log(`ticketId: ${response.id}`)
+      console.log(`ticketNumber: ${response.ticketNumber}`)
+      console.log('----------------------------------')
+
       finalizePrint()
     }
 

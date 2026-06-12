@@ -9,6 +9,7 @@ import { TicketPanel } from './components/TicketPanel'
 import { RecentTickets } from './components/RecentTickets'
 import { ActionButtons } from './components/ActionButtons'
 import { TicketPrint } from './components/TicketPrint'
+import { PrintErrorBoundary } from './components/PrintErrorBoundary'
 import LoginPage from './pages/LoginPage'
 import CashPage from './pages/CashPage'
 import OddsPage from './pages/OddsPage'
@@ -273,7 +274,9 @@ const POSScreen: React.FC = () => {
           </div>
         </div>
       </div>
-      <TicketPrint />
+      <PrintErrorBoundary>
+        <TicketPrint />
+      </PrintErrorBoundary>
     </div>
   )
 }

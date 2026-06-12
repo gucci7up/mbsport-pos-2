@@ -2420,6 +2420,14 @@ select {
     padding: 0;
   }
 
+  .pos-screen {
+    background: #fff !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
   .screen-only {
     display: none !important;
   }
