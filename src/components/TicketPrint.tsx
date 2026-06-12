@@ -37,17 +37,21 @@ export const TicketPrint: React.FC = () => {
             <div
               key={`${bet.selection}-${index}`}
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: '8px',
-                marginBottom: '6px',
+                marginBottom: '8px',
+                fontSize: '11px',
               }}
             >
-              <div style={{ flex: 1 }}>
-                {bet.type} {bet.selection}
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 700 }}>
+                  {bet.type} {bet.selection}
+                </span>
+                <span>RD${bet.amount.toFixed(2)}</span>
               </div>
-              <div style={{ flexShrink: 0 }}>RD${bet.amount}</div>
+              {bet.odds !== undefined && bet.potentialPrize !== undefined && (
+                <div style={{ fontSize: '10px', color: '#555', marginTop: '1px', paddingLeft: '8px' }}>
+                  Cuota: {bet.odds.toFixed(2)} | P. Potencial: RD${bet.potentialPrize.toFixed(2)}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -56,7 +60,7 @@ export const TicketPrint: React.FC = () => {
 
         <div style={{ textAlign: 'center', fontWeight: 700 }}>
           <div>TOTAL</div>
-          <div style={{ marginTop: '4px' }}>RD${printableTicket.total}</div>
+          <div style={{ marginTop: '4px' }}>RD${printableTicket.total.toFixed(2)}</div>
         </div>
 
         <div style={{ margin: '10px 0', borderTop: '1px dashed #000' }} />

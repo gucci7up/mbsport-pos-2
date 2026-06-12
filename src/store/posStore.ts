@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { getServerTime } from '../services/http'
 import { RaceDetail, OddsEntry } from '../services/races'
 import { createTicket } from '../services/tickets'
+import { getAuthSession, isAuthenticated } from '../services/auth'
 
 export type BetType = 'QUINIELA' | 'EXACTA' | 'TRIFECTA'
 
@@ -230,7 +231,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
   pendingAmount: 0,
   bets: [],
   nextBetId: 1,
-  recentTickets: INITIAL_RECENT,
+  recentTickets: [],
   printableTicket: null,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
@@ -434,12 +435,30 @@ export const usePOSStore = create<POSState>((set, get) => ({
 
   printTicket: async () => {
     const state = get()
-    if (state.bets.length === 0) return
+
+    // 1. Validar usuario autenticado
+    const session = getAuthSession()
+    if (!isAuthenticated() || !session?.token) {
+      throw new Error('Usuario no autenticado.')
+    }
+
+    // 2. Validar agencia válida
+    const agencyId = session.user.agencyId || session.user.agency
+    if (!agencyId) {
+      throw new Error('El usuario no tiene una agencia válida asignada.')
+    }
+
+    // 3. Validar carrera activa y estado OPEN
     if (state.raceStatus !== 'OPEN') {
       throw new Error('Las apuestas para esta carrera están cerradas.')
     }
     if (!state.activeRaceId) {
       throw new Error('No hay una carrera activa.')
+    }
+
+    // 4. Validar apuesta válida (bets no vacío)
+    if (state.bets.length === 0) {
+      throw new Error('El ticket no contiene apuestas.')
     }
 
     const payloadDetails = state.bets.map(bet => {
@@ -459,13 +478,13 @@ export const usePOSStore = create<POSState>((set, get) => ({
       }
     })
 
-    // 1. Send request to backend
+    // 5. Send request to backend
     const response = await createTicket({
       raceId: String(state.activeRaceId),
       details: payloadDetails,
     })
 
-    // 2. Map response to PrintableTicket
+    // 6. Map response to PrintableTicket
     const ticketCreatedAt = new Date(response.createdAt)
     const printableTicket: PrintableTicket = {
       id: response.ticketNumber,
@@ -481,12 +500,12 @@ export const usePOSStore = create<POSState>((set, get) => ({
         potentialPrize: parseFloat(d.potentialPrize)
       })),
       total: parseFloat(response.totalAmount),
-      agencyName: response.user.agency ?? 'AGENCIA',
+      agencyName: (response.user as any).agency ?? session.user.agency ?? session.user.agencyId ?? 'AGENCIA',
       userName: response.user.username,
       raceNumber: response.race.numero
     }
 
-    // 3. Map to RecentTicket
+    // 7. Map to RecentTicket
     const newRecent: RecentTicket = {
       id: response.ticketNumber,
       date: `${printableTicket.date} ${printableTicket.time}`,
@@ -496,13 +515,20 @@ export const usePOSStore = create<POSState>((set, get) => ({
       publicToken: response.publicToken
     }
 
-    // 4. Temporarily log details as required in Tarea 8
-    console.log(`[Ticket Created]\nRace ID: ${response.raceId}\nRace Number: ${response.race.numero}\nPayload:`, JSON.stringify({
+    // 8. Temporarily log details as required in Tarea 8
+    console.log('--- LOG TEMPORAL: CREACIÓN DE TICKET ---')
+    console.log(`Race ID: ${response.raceId}`)
+    console.log(`Race Number: ${response.race?.numero}`)
+    console.log('Payload enviado:', JSON.stringify({
       raceId: String(state.activeRaceId),
       details: payloadDetails
-    }, null, 2), `\nResponse:`, JSON.stringify(response, null, 2), `\nTicket ID: ${response.id}\nTicket Number: ${response.ticketNumber}`)
+    }, null, 2))
+    console.log('Respuesta recibida:', JSON.stringify(response, null, 2))
+    console.log(`Ticket ID: ${response.id}`)
+    console.log(`Ticket Number: ${response.ticketNumber}`)
+    console.log('-----------------------------------------')
 
-    // 5. Setup print and state update
+    // 9. Setup print and state update
     const finalizePrint = () => {
       set(state => ({
         bets: [],

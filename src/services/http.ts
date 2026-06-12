@@ -66,14 +66,29 @@ export const apiFetchJson = async <T>(path: string, init?: RequestInit): Promise
     const status = response.status
     const code: ApiErrorCode =
       status === 401 ? 'invalid' : status === 419 || status === 440 ? 'expired' : status >= 500 ? 'server_unavailable' : 'unknown'
-    const message =
-      code === 'invalid'
-        ? 'Usuario o contraseña incorrectos.'
-        : code === 'expired'
-          ? 'Sesión expirada.'
-          : code === 'server_unavailable'
-            ? 'Servidor no disponible.'
-            : 'Error de conexión.'
+    
+    let message = ''
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+      const p = payload as Record<string, any>
+      if (typeof p.message === 'string') {
+        message = p.message
+      } else if (Array.isArray(p.message)) {
+        message = p.message.join(', ')
+      } else if (typeof p.error === 'string') {
+        message = p.error
+      }
+    }
+
+    if (!message) {
+      message =
+        code === 'invalid'
+          ? 'Usuario o contraseña incorrectos.'
+          : code === 'expired'
+            ? 'Sesión expirada.'
+            : code === 'server_unavailable'
+              ? 'Servidor no disponible.'
+              : 'Error de conexión.'
+    }
 
     throw new ApiError(code, message, status)
   }
