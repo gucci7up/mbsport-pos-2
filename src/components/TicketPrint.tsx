@@ -61,7 +61,17 @@ export const TicketPrint: React.FC = () => {
 
         <div style={{ margin: '10px 0', borderTop: '1px dashed #000' }} />
 
-        <div style={{ textAlign: 'center' }}>Gracias por preferir MBRACES</div>
+        <div style={{ textAlign: 'center', fontSize: '10px', lineHeight: 1.4 }}>
+          {printableTicket.agencyName && <div>AGENCIA: {printableTicket.agencyName}</div>}
+          {printableTicket.userName && <div>CAJERO: {printableTicket.userName}</div>}
+          {printableTicket.raceNumber && <div>CARRERA: #{printableTicket.raceNumber}</div>}
+          {printableTicket.publicToken && (
+            <div style={{ marginTop: '4px', fontWeight: 700, fontSize: '11px', letterSpacing: '0.05em' }}>
+              TOKEN: {printableTicket.publicToken}
+            </div>
+          )}
+          <div style={{ marginTop: '6px' }}>Gracias por preferir MBRACES</div>
+        </div>
       </div>
     </div>
   )

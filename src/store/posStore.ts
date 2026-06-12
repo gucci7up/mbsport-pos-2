@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { getServerTime } from '../services/http'
 import { RaceDetail, OddsEntry } from '../services/races'
+import { createTicket } from '../services/tickets'
 
 export type BetType = 'QUINIELA' | 'EXACTA' | 'TRIFECTA'
 
@@ -17,6 +18,8 @@ export interface RecentTicket {
   date: string
   bets: number
   total: number
+  uuid?: string
+  publicToken?: string
 }
 
 export interface BetDraft {
@@ -32,10 +35,15 @@ export interface AddCurrentBetResult {
 
 export interface PrintableTicket {
   id: number
+  uuid?: string
+  publicToken?: string
   date: string
   time: string
-  bets: Array<Pick<BetEntry, 'type' | 'selection' | 'amount'>>
+  bets: Array<Pick<BetEntry, 'type' | 'selection' | 'amount'> & { odds?: number; potentialPrize?: number }>
   total: number
+  agencyName?: string
+  userName?: string
+  raceNumber?: number
 }
 
 export interface POSState {
@@ -87,7 +95,7 @@ export interface POSState {
   addCurrentBet: () => AddCurrentBetResult
   removeBet: (id: string) => void
   clearTicket: () => void
-  printTicket: () => void
+  printTicket: () => Promise<void>
   tickTime: () => void
   updateRaceFromBackend: (race: RaceDetail) => void
   setServerError: (error: string | null) => void
@@ -424,18 +432,83 @@ export const usePOSStore = create<POSState>((set, get) => ({
 
   clearTicket: () => set({ bets: [], selectedDogs: [...emptySelection], pendingAmount: 0 }),
 
-  printTicket: () => {
+  printTicket: async () => {
     const state = get()
     if (state.bets.length === 0) return
-    if (state.raceStatus !== 'OPEN') return
+    if (state.raceStatus !== 'OPEN') {
+      throw new Error('Las apuestas para esta carrera están cerradas.')
+    }
+    if (!state.activeRaceId) {
+      throw new Error('No hay una carrera activa.')
+    }
 
-    const printableTicket = buildPrintableTicket(state.bets, state.recentTickets)
+    const payloadDetails = state.bets.map(bet => {
+      let betOddsStr = '1.00'
+      if (bet.type === 'QUINIELA') {
+        betOddsStr = state.winnerOddsMap?.[bet.selection] ?? '1.00'
+      } else if (bet.type === 'EXACTA') {
+        betOddsStr = state.exactaOddsMap?.[bet.selection] ?? '5.00'
+      } else if (bet.type === 'TRIFECTA') {
+        betOddsStr = state.trifectaOddsMap?.[bet.selection] ?? '10.00'
+      }
+      return {
+        betType: (bet.type === 'QUINIELA' ? 'WINNER' : bet.type) as 'WINNER' | 'EXACTA' | 'TRIFECTA',
+        selection: bet.selection,
+        amount: bet.amount.toFixed(2),
+        odds: parseFloat(betOddsStr).toFixed(2),
+      }
+    })
+
+    // 1. Send request to backend
+    const response = await createTicket({
+      raceId: String(state.activeRaceId),
+      details: payloadDetails,
+    })
+
+    // 2. Map response to PrintableTicket
+    const ticketCreatedAt = new Date(response.createdAt)
+    const printableTicket: PrintableTicket = {
+      id: response.ticketNumber,
+      uuid: response.id,
+      publicToken: response.publicToken,
+      date: ticketCreatedAt.toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      time: ticketCreatedAt.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      bets: response.details.map(d => ({
+        type: d.betType === 'WINNER' ? 'QUINIELA' : d.betType,
+        selection: d.selection,
+        amount: parseFloat(d.amount),
+        odds: parseFloat(d.odds),
+        potentialPrize: parseFloat(d.potentialPrize)
+      })),
+      total: parseFloat(response.totalAmount),
+      agencyName: response.user.agency ?? 'AGENCIA',
+      userName: response.user.username,
+      raceNumber: response.race.numero
+    }
+
+    // 3. Map to RecentTicket
+    const newRecent: RecentTicket = {
+      id: response.ticketNumber,
+      date: `${printableTicket.date} ${printableTicket.time}`,
+      bets: response.details.length,
+      total: parseFloat(response.totalAmount),
+      uuid: response.id,
+      publicToken: response.publicToken
+    }
+
+    // 4. Temporarily log details as required in Tarea 8
+    console.log(`[Ticket Created]\nRace ID: ${response.raceId}\nRace Number: ${response.race.numero}\nPayload:`, JSON.stringify({
+      raceId: String(state.activeRaceId),
+      details: payloadDetails
+    }, null, 2), `\nResponse:`, JSON.stringify(response, null, 2), `\nTicket ID: ${response.id}\nTicket Number: ${response.ticketNumber}`)
+
+    // 5. Setup print and state update
     const finalizePrint = () => {
       set(state => ({
         bets: [],
         selectedDogs: [...emptySelection],
         pendingAmount: 0,
-        recentTickets: [toRecentTicket(printableTicket), ...state.recentTickets.slice(0, 4)],
+        recentTickets: [newRecent, ...state.recentTickets.slice(0, 4)],
         printableTicket: null,
       }))
     }

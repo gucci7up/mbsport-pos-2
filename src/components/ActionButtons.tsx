@@ -21,6 +21,8 @@ export const ActionButtons: React.FC = () => {
   const hasAnySelection = selectedDogs.some(dog => dog !== null)
   const canAdd = hasAnySelection && pendingAmount > 0 && raceStatus === 'OPEN'
 
+  const [isPrinting, setIsPrinting] = useState(false)
+
   return (
     <div className="grid grid-cols-2 gap-2">
       <button
@@ -85,6 +87,7 @@ export const ActionButtons: React.FC = () => {
         className="btn-borrar rounded-lg flex flex-col items-center justify-center gap-2"
         style={{ height: 'clamp(122px, 16vh, 148px)' }}
         onClick={clearTicket}
+        disabled={isPrinting}
       >
         {/* Trash icon */}
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -111,9 +114,23 @@ export const ActionButtons: React.FC = () => {
       <button
         id="btn-imprimir-ticket"
         className="btn-imprimir rounded-lg flex flex-col items-center justify-center gap-2"
-        style={{ height: 'clamp(122px, 16vh, 148px)' }}
-        onClick={printTicket}
-        disabled={bets.length === 0 || raceStatus !== 'OPEN'}
+        style={{
+          height: 'clamp(122px, 16vh, 148px)',
+          opacity: isPrinting ? 0.7 : 1
+        }}
+        onClick={async () => {
+          if (isPrinting) return
+          setIsPrinting(true)
+          try {
+            await printTicket()
+          } catch (err: any) {
+            console.error('Error al imprimir ticket:', err)
+            alert(err.message || 'Error al procesar el ticket')
+          } finally {
+            setIsPrinting(false)
+          }
+        }}
+        disabled={bets.length === 0 || raceStatus !== 'OPEN' || isPrinting}
       >
         {/* Printer icon */}
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -132,7 +149,11 @@ export const ActionButtons: React.FC = () => {
             color: '#000',
           }}
         >
-          IMPRIMIR<br />TICKET
+          {isPrinting ? (
+            <>ENVIANDO...<br />&nbsp;</>
+          ) : (
+            <>IMPRIMIR<br />TICKET</>
+          )}
         </span>
       </button>
     </div>
