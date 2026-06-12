@@ -129,7 +129,7 @@ const POSScreen: React.FC = () => {
 
   // Synchronize store with queried race
   useEffect(() => {
-    if (currentRace) {
+    if (currentRace !== undefined) {
       updateRaceFromBackend(currentRace)
     }
   }, [currentRace, updateRaceFromBackend])

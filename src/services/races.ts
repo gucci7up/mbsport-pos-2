@@ -23,8 +23,11 @@ export interface OddsEntry {
   updatedAt: string
 }
 
-export const getCurrentRace = async (): Promise<RaceDetail> => {
+export const getCurrentRace = async (): Promise<RaceDetail | null> => {
   const data = await apiFetchJson<any>('/races/current', { method: 'GET' })
+  if (!data) {
+    return null
+  }
   return {
     id: data.id,
     raceNumber: data.numero ?? data.raceNumber,

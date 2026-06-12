@@ -98,7 +98,7 @@ export interface POSState {
   clearTicket: () => void
   printTicket: () => Promise<void>
   tickTime: () => void
-  updateRaceFromBackend: (race: RaceDetail) => void
+  updateRaceFromBackend: (race: RaceDetail | null) => void
   setServerError: (error: string | null) => void
   updateOddsFromBackend: (entries: OddsEntry[]) => void
   setOddsError: (error: string | null) => void
@@ -239,6 +239,16 @@ export const usePOSStore = create<POSState>((set, get) => ({
   setServerError: (error) => set({ serverError: error }),
 
   updateRaceFromBackend: (race) => {
+    if (!race) {
+      set({
+        activeRaceId: null,
+        raceStatus: 'FINISHED',
+        timeRemaining: 0,
+        serverError: null,
+      })
+      return
+    }
+
     const nowTime = getServerTime()
     const endTime = new Date(race.saleEndAt).getTime()
     const openTime = new Date(race.openAt).getTime()

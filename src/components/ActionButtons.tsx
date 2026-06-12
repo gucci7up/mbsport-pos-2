@@ -18,8 +18,9 @@ export const ActionButtons: React.FC = () => {
   }, [flash])
 
   const raceStatus = usePOSStore(s => s.raceStatus)
+  const activeRaceId = usePOSStore(s => s.activeRaceId)
   const hasAnySelection = selectedDogs.some(dog => dog !== null)
-  const canAdd = hasAnySelection && pendingAmount > 0 && raceStatus === 'OPEN'
+  const canAdd = hasAnySelection && pendingAmount > 0 && raceStatus === 'OPEN' && Boolean(activeRaceId)
 
   const [isPrinting, setIsPrinting] = useState(false)
 
@@ -130,7 +131,7 @@ export const ActionButtons: React.FC = () => {
             setIsPrinting(false)
           }
         }}
-        disabled={bets.length === 0 || raceStatus !== 'OPEN' || isPrinting}
+        disabled={bets.length === 0 || raceStatus !== 'OPEN' || !activeRaceId || isPrinting}
       >
         {/* Printer icon */}
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">

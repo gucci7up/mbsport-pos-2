@@ -4,7 +4,28 @@ import BrandLogo from './BrandLogo'
 import { getAuthSession } from '../services/auth'
 
 const RaceInfoBar: React.FC = () => {
-  const { raceNumber, raceStatus, startTime, activeTime, timeRemaining, totalTime, serverError } = usePOSStore()
+  const { activeRaceId, raceNumber, raceStatus, startTime, activeTime, timeRemaining, totalTime, serverError } = usePOSStore()
+
+  if (!activeRaceId) {
+    return (
+      <div
+        className="flex items-center justify-center w-full px-4 py-3"
+        style={{
+          background: 'rgba(127,29,29,0.2)',
+          borderBottom: '1px solid rgba(239,68,68,0.4)',
+          borderTop: '1px solid rgba(239,68,68,0.4)',
+          color: '#f87171',
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 700,
+          fontSize: '1.1rem',
+          letterSpacing: '0.05em',
+          textAlign: 'center',
+        }}
+      >
+        ⚠️ No existe una carrera activa en este momento
+      </div>
+    )
+  }
 
   const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0')
   const seconds = (timeRemaining % 60).toString().padStart(2, '0')

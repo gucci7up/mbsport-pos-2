@@ -11,9 +11,10 @@ export const SpecialPlaysPanel: React.FC = () => {
     pendingAmount,
     bets,
     raceStatus,
+    activeRaceId,
   } = usePOSStore()
 
-  const isOpen = raceStatus === 'OPEN'
+  const isOpen = raceStatus === 'OPEN' && Boolean(activeRaceId)
   const hasTwo = selectedDogs[0] !== null && selectedDogs[1] !== null && isOpen
   const hasOne = selectedDogs[0] !== null && isOpen
   const hasAmount = pendingAmount > 0 && isOpen
