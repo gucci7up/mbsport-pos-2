@@ -435,29 +435,39 @@ export const usePOSStore = create<POSState>((set, get) => ({
 
   printTicket: async () => {
     const state = get()
+    const session = getAuthSession()
+
+    console.log('[PRINT] START')
+    console.log('[PRINT] currentBetCount', state.bets.length)
+    console.log('[PRINT] raceStatus', state.raceStatus)
+    console.log('[PRINT] user', session?.user)
 
     // 1. Validar usuario autenticado
-    const session = getAuthSession()
     if (!isAuthenticated() || !session?.token) {
+      console.log('[PRINT] BLOQUEADO: Usuario no autenticado')
       throw new Error('Usuario no autenticado.')
     }
 
     // 2. Validar agencia válida
     const agencyId = session.user.agencyId || session.user.agency
     if (!agencyId) {
+      console.log('[PRINT] BLOQUEADO: Sin agencia válida. User:', session.user)
       throw new Error('El usuario no tiene una agencia válida asignada.')
     }
 
     // 3. Validar carrera activa y estado OPEN
     if (state.raceStatus !== 'OPEN') {
+      console.log('[PRINT] BLOQUEADO: Carrera no OPEN. Status:', state.raceStatus)
       throw new Error('Las apuestas para esta carrera están cerradas.')
     }
     if (!state.activeRaceId) {
+      console.log('[PRINT] BLOQUEADO: Sin carrera activa')
       throw new Error('No hay una carrera activa.')
     }
 
     // 4. Validar apuesta válida (bets no vacío)
     if (state.bets.length === 0) {
+      console.log('[PRINT] BLOQUEADO: Sin apuestas en el ticket')
       throw new Error('El ticket no contiene apuestas.')
     }
 
@@ -479,10 +489,12 @@ export const usePOSStore = create<POSState>((set, get) => ({
     })
 
     // 5. Send request to backend
+    console.log('[PRINT] CALLING POST /tickets')
     const response = await createTicket({
       raceId: String(state.activeRaceId),
       details: payloadDetails,
     })
+    console.log('[PRINT] RESPONSE', response)
 
     // 6. Map response to PrintableTicket
     const ticketCreatedAt = new Date(response.createdAt)
