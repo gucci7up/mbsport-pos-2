@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useRef } from 'react'
+import React, { useLayoutEffect, useMemo, useRef, useState, useEffect } from 'react'
 import { usePOSStore } from '../store/posStore'
 
 type DogColorKey = 1 | 2 | 3 | 4 | 5 | 6
@@ -130,6 +130,22 @@ const buildTopTrifectas = (trifectaOddsMap: Record<string, string> | null): Trif
 
 const OddsPage: React.FC = () => {
   const { raceNumber, raceStatus, timeRemaining, odds, exactaOddsMap, trifectaOddsMap, oddsError } = usePOSStore()
+
+  const [lastUpdated, setLastUpdated] = useState<string>(() =>
+    new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  )
+
+  const isWsActive = useMemo(() => {
+    return typeof window !== 'undefined' && 
+      (((window as any).mbsportSocket instanceof WebSocket && (window as any).mbsportSocket.readyState === WebSocket.OPEN) || 
+       (window as any).mbsportSocketActive === true)
+  }, [odds])
+
+  useEffect(() => {
+    if (odds) {
+      setLastUpdated(new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+    }
+  }, [odds])
 
   const rows = useMemo<DogOddsRow[]>(() => {
     if (!odds) {
@@ -312,7 +328,7 @@ const OddsPage: React.FC = () => {
             <div className="results-detail-item">
               <span className="results-detail-label">Ultima actualizacion</span>
               <span className="results-detail-value" style={{ fontFamily: "'Roboto Mono', monospace" }}>
-                {new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                {lastUpdated}
               </span>
             </div>
             <div className="results-detail-item">
@@ -332,9 +348,19 @@ const OddsPage: React.FC = () => {
               )}
             </div>
             <div className="results-detail-item">
-              <span className="results-detail-label">Estado WebSocket</span>
-              <span className="results-status-badge" style={{ color: '#ef4444', border: '1px solid rgba(239,68,68,0.28)', background: 'rgba(44,11,11,0.88)' }}>
-                DESCONECTADO
+              <span className="results-detail-label">Modo Sincronización</span>
+              <span className="results-status-badge" style={{
+                color: isWsActive ? '#22c55e' : '#38bdf8',
+                border: isWsActive ? '1px solid rgba(34,197,94,0.28)' : '1px solid rgba(56,189,248,0.28)',
+                background: isWsActive ? 'rgba(20,83,45,0.88)' : 'rgba(12,74,110,0.88)'
+              }}>
+                {isWsActive ? 'WEBSOCKET' : 'POLLING HTTP'}
+              </span>
+            </div>
+            <div className="results-detail-item">
+              <span className="results-detail-label">Intervalo de refresco</span>
+              <span className="results-detail-value" style={{ fontFamily: "'Roboto Mono', monospace" }}>
+                {isWsActive ? 'Tiempo real' : '5s'}
               </span>
             </div>
             <div className="results-detail-item">
